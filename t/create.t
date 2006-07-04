@@ -1,4 +1,4 @@
-use Test::More qw[no_plan];
+use Test::More tests => 6;
 use_ok 'Email::Simple::Creator';
 use_ok 'Email::Simple';
 

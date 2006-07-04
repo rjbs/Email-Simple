@@ -1,9 +1,8 @@
 package Email::Simple::Creator;
-# $Id: Creator.pm,v 1.4 2004/07/25 20:29:28 cwest Exp $
 use strict;
 
 use vars qw[$VERSION $CRLF];
-$VERSION = (qw$Revision: 1.4 $)[1];
+$VERSION = '1.41';
 $CRLF    = "\x0a\x0d";
 
 sub _date_header {
