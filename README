@@ -1,0 +1,55 @@
+NAME
+    Email::Simple::Creator - Email::Simple constructor for starting anew.
+
+SYNOPSIS
+      use Email::Simple;
+      use Email::Simple::Creator;
+  
+      my $email = Email::Simple->create(
+          header => [
+            From    => 'casey@geeknest.com',
+            To      => 'drain@example.com',
+            Subject => 'Message in a bottle',
+          ],
+          body => '...',
+      );
+  
+      $email->header_set( 'X-Content-Container' => 'bottle/glass' );
+  
+      print $email->as_string;
+
+DESCRIPTION
+    This software provides a constructor to Email::Simple for creating
+    messages from scratch.
+
+  Methods
+    create
+           my $email = Email::Simple->create(header => [ @headers ], body => '...');
+
+         This method is a constructor that creates an "Email::Simple" object
+         from a set of named parameters. The "header" parameter's value is a
+         list reference containing a set of headers to be created. The
+         "body" parameter's value is a scalar value holding the contents of
+         the message body.
+
+         If no "Date" header is specified, one will be provided for you
+         based on the "gmtime()" of the local machine. This is because the
+         "Date" field is a required header and is a pain in the neck to
+         create manually for every message. The "From" field is also a
+         required header, but it is *not* provided for you.
+
+         The parameters passed are used to create an email message that is
+         passed to "Email::Simple->new()". "create()" returns the value
+         returned by "new()". With skill, that's an "Email::Simple" object.
+
+SEE ALSO
+    Email::Simple, perl.
+
+AUTHOR
+    Casey West, <casey@geeknest.com>.
+
+COPYRIGHT
+      Copyright (c) 2004 Casey West.  All rights reserved.
+      This module is free software; you can redistribute it and/or modify it
+      under the same terms as Perl itself.
+
