@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.92';
+$VERSION = '1.94';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
                                             # But then, so is a six dollar whore.
@@ -218,8 +218,8 @@ sub _header_as_string {
     my @stuff = @$data;
     # Ignore "empty" headers
     return '' unless @stuff = grep { defined $_ } @stuff;
-    return join "", map { $_ = "$field: $_$self->{mycrlf}";
-                          length > 78 ? $self->_fold($_) : $_ }
+    return join "", map { length > 78 ? $self->_fold($_) : "$_$self->{mycrlf}" }
+                    map { "$field: $_" } 
                     @stuff;
 }
 
