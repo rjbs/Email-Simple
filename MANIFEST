@@ -9,6 +9,8 @@ t/3.t
 t/4.t
 t/badly-folded.t
 t/no-body.t
+t/pod.t
+t/pod-coverage.t
 t/test-mails/badly-folded
 t/test-mails/josey-fold
 t/test-mails/josey-nobody
