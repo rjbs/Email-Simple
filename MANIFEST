@@ -1,0 +1,20 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+Simple.pm
+t/1.t
+t/2.t
+t/3.t
+t/4.t
+t/badly-folded.t
+t/no-body.t
+t/pod.t
+t/pod-coverage.t
+t/test-mails/badly-folded
+t/test-mails/josey-fold
+t/test-mails/josey-nobody
+t/test-mails/josey-nofold
+t/test-mails/long-msgid
+t/unit.t
+META.yml                                Module meta-data (added by MakeMaker)
