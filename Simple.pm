@@ -255,6 +255,12 @@ invocation from a .forward file (for this we recommend you use
 L<Email::Filter> anyway).  For more information on this issue please
 consult RT issue 2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
 
+=head1 PERL EMAIL PROJECT
+
+This module is maintained by the Perl Email Project
+
+  L<http://emailproject.perl.org/wiki/Email::Simple>
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2004 by Casey West
@@ -263,9 +269,5 @@ Copyright 2003 by Simon Cozens
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-Perl Email Project, http://pep.kwiki.org .
 
 =cut

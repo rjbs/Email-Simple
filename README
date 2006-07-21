@@ -71,6 +71,12 @@ CAVEATS
     anyway). For more information on this issue please consult RT issue
     2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
 
+PERL EMAIL PROJECT
+
+This module is maintained by the Perl Email Project
+
+  http://emailproject.perl.org/wiki/Email::Simple
+
 COPYRIGHT AND LICENSE
     Copyright 2004 by Casey West
 
@@ -78,7 +84,4 @@ COPYRIGHT AND LICENSE
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
-
-SEE ALSO
-    Perl Email Project, http://pep.kwiki.org .
 
