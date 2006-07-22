@@ -2,7 +2,7 @@ Changes
 Makefile.PL
 MANIFEST
 README
-Simple.pm
+lib/Email/Simple.pm
 t/1.t
 t/2.t
 t/3.t
