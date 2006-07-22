@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.94';
+$VERSION = '1.95';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
                                             # But then, so is a six dollar whore.
