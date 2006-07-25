@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::Simple.
 
+1.96    2006-07-25
+
+  - output headers in predictable order
+
 1.95    2006-07-21
 
   - update PEP url

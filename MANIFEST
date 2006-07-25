@@ -8,6 +8,7 @@ t/2.t
 t/3.t
 t/4.t
 t/badly-folded.t
+t/many-repeats.t
 t/no-body.t
 t/pod.t
 t/pod-coverage.t
@@ -16,5 +17,6 @@ t/test-mails/josey-fold
 t/test-mails/josey-nobody
 t/test-mails/josey-nofold
 t/test-mails/long-msgid
+t/test-mails/many-repeats
 t/unit.t
 META.yml                                Module meta-data (added by MakeMaker)

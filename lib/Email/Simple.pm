@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.95';
+$VERSION = '1.96';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
                                             # But then, so is a six dollar whore.
@@ -178,21 +178,18 @@ sub body_set { $_[0]->{body} = $_[1] || '' }
 
 =head2 as_string
 
-Returns the mail as a string, reconstructing the headers. Please note
-that header fields are kept in order if they are unique, but, for,
-instance, multiple "Received" headers will be grouped together. (This is
-in accordance with RFC2822, honest.)
+Returns the mail as a string, reconstructing the headers.
 
-Also, if you've added new headers with C<header_set> that weren't in the
-original mail, they'll be added to the end.
+If you've added new headers with C<header_set> that weren't in the original
+mail, they'll be added to the end.
 
 =cut
 
-# However, for the purposes of this standard, header
-# fields SHOULD NOT be reordered when a message is transported or
-# transformed.  More importantly, the trace header fields and resent
-# header fields MUST NOT be reordered, and SHOULD be kept in blocks
-# prepended to the message.
+# RFC 2822, 3.6:
+# ...for the purposes of this standard, header fields SHOULD NOT be reordered
+# when a message is transported or transformed.  More importantly, the trace
+# header fields and resent header fields MUST NOT be reordered, and SHOULD be
+# kept in blocks prepended to the message.
 
 sub as_string {
     my $self = shift;
@@ -202,25 +199,30 @@ sub as_string {
 sub _headers_as_string {
     my $self = shift;
     my @order = @{$self->{order}};
-    my %head = %{$self->{head}};
-    my $stuff = "";
-    while (keys %head) {
-        my $thing = shift @order;
-        next unless exists $head{$thing}; # We have already dealt with it
-        $stuff .= $self->_header_as_string($thing, $head{$thing});
-        delete $head{$thing};
+
+    my $header_str = "";
+    my %seen;
+
+    for my $header (@{$self->{order}}) {
+        $header_str .= $self->_header_as_string(
+          $header,
+          $self->{head}{$header}[ $seen{$header}++ ]
+        );
     }
-    return $stuff;
+
+    return $header_str;
 }
 
 sub _header_as_string {
     my ($self, $field, $data) = @_;
-    my @stuff = @$data;
+
     # Ignore "empty" headers
-    return '' unless @stuff = grep { defined $_ } @stuff;
-    return join "", map { length > 78 ? $self->_fold($_) : "$_$self->{mycrlf}" }
-                    map { "$field: $_" } 
-                    @stuff;
+    return '' unless defined $data;
+
+    my $string = "$field: $data";
+
+    return (length $string > 78) ? $self->_fold($string)
+                                 : "$string$self->{mycrlf}";
 }
 
 sub _fold {
