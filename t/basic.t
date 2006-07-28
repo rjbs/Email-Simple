@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 sub read_file { local $/; local *FH; open FH, shift or die $!; return <FH> }
 use_ok("Email::Simple");
@@ -51,6 +51,18 @@ is(Email::Simple->new($mail->as_string)->as_string, $mail_text, "Good grief, it'
     $email->body,
     '0',
     "setting body to false string makes ->body return that",
+  );
+
+  $email->header_set('Previously-Unknown' => 'wonderful species');
+  is(
+    $email->header('Previously-Unknown'),
+    'wonderful species',
+    "we can add headers that were previously not in the message",
+  );
+  like(
+    $email->as_string,
+    qr/Previously-Unknown: wonderful species/,
+    "...and the show up in the stringification",
   );
 }
 

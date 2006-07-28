@@ -1,9 +1,10 @@
 Revision history for Perl extension Email::Simple.
 
-1.96    2006-07-25
+1.96    2006-07-28
 
   - output headers in predictable order
   - give tests more meaningful names
+  - improved test coverage
 
 1.95    2006-07-21
 
