@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 16;
 
 sub read_file { local $/; local *FH; open FH, shift or die $!; return <FH> }
 use_ok("Email::Simple");
@@ -19,6 +19,8 @@ my $sc = 'Simon Cozens <simon@cpan.org>';
 is($mail->header_set("From", $sc), $sc, "Setting returns new value");
 is($mail->header("From"), $sc, "Which is consistently returned");
 
+is($mail->header("Bogus"), '', "missing header returns '' (this may change!)");
+
 # Put andrew back:
 $mail->header_set("From", $old_from);
 
@@ -33,6 +35,24 @@ is($mail->body, $hi, "Body can be set properly");
 $mail->body_set($body);
 is($mail->as_string, $mail_text, "Good grief, it's round-trippable");
 is(Email::Simple->new($mail->as_string)->as_string, $mail_text, "Good grief, it's still round-trippable");
+
+{
+  my $email = Email::Simple->new($mail->as_string);
+
+  $email->body_set(undef);
+  is(
+    $email->body,
+    '',
+    "setting body to undef makes ->body return ''",
+  );
+
+  $email->body_set(0);
+  is(
+    $email->body,
+    '0',
+    "setting body to false string makes ->body return that",
+  );
+}
 
 # With nasty newlines
 my $nasty = "Subject: test\n\rTo: foo\n\r\n\rfoo\n\r";

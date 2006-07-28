@@ -61,9 +61,9 @@ sub new {
     my ($head, $body, $mycrlf) = _split_head_from_body($text);
     my ($head_hash, $order) = _read_headers($head);
     bless {
-        head => $head_hash,
-        body => $body,
-        order => $order,
+        head   => $head_hash,
+        body   => $body,
+        order  => $order,
         mycrlf => $mycrlf,
         header_names => { map { lc $_ => $_ } keys %$head_hash }
     }, $class;
@@ -125,7 +125,7 @@ doesn't.
 
 sub header {
     my ($self, $field) = @_;
-    $field = $self->{header_names}->{lc $field} || return "";
+    return '' unless $field = $self->{header_names}->{lc $field};
     return wantarray ? @{$self->{head}->{$field}}
                      :   $self->{head}->{$field}->[0];
 }
@@ -166,7 +166,10 @@ Returns the body text of the mail.
 
 =cut
 
-sub body { return $_[0]->{body}      } # We like this. This is simple.
+sub body {
+  my ($self) = @_;
+  return defined($self->{body}) ? $self->{body} : '';
+}
 
 =head2 body_set
 
@@ -174,7 +177,7 @@ Sets the body text of the mail.
 
 =cut
 
-sub body_set { $_[0]->{body} = $_[1] || '' }
+sub body_set { $_[0]->{body} = $_[1]; $_[0]->body }
 
 =head2 as_string
 
