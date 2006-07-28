@@ -142,9 +142,9 @@ in, you get multiple headers, and order is retained.
 sub header_set {
     my ($self, $field, @data) = @_;
     if ($GROUCHY) {
-        croak "I am not going to break RFC2822 and neither are you"
+        croak "field name contains illegal characters"
             unless $field =~ /^[\x21-\x39\x3b-\x7e]+$/;
-        carp "You're a miserable bastard but I'll let you off this time"
+        carp "field name is not limited to hyphens and alphanumerics"
             unless $field =~ /^[\w-]+$/;
     }
 
