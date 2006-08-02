@@ -29,8 +29,6 @@ Email::Simple - Simple parsing of RFC2822 message format and headers
 
     print $email->as_string;
 
-    # AND THAT'S ALL.
-
 =head1 DESCRIPTION
 
 C<Email::Simple> is the first deliverable of the "Perl Email Project."  The
@@ -235,17 +233,13 @@ sub as_string {
 }
 
 sub _headers_as_string {
-    my $self = shift;
-    my @order = @{$self->{order}};
+    my ($self) = @_;
 
-    my $header_str = "";
-    my %seen;
+    my $header_str = '';
+    my @pairs = $self->header_pairs;
 
-    for my $header (@{$self->{order}}) {
-        $header_str .= $self->_header_as_string(
-          $header,
-          $self->{head}{$header}[ $seen{$header}++ ]
-        );
+    while (my ($name, $value) = splice @pairs, 0, 2) {
+        $header_str .= $self->_header_as_string($name, $value);
     }
 
     return $header_str;
