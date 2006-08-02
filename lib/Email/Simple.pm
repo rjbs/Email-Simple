@@ -5,10 +5,9 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.96';
+$VERSION = '1.97';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
-                                            # But then, so is a six dollar whore.
 
 $GROUCHY = 0;
 
@@ -18,30 +17,27 @@ Email::Simple - Simple parsing of RFC2822 message format and headers
 
 =head1 SYNOPSIS
 
-    my $mail = Email::Simple->new($text);
+    my $email = Email::Simple->new($text);
 
-    my $from_header = $mail->header("From");
-    my @received = $mail->header("Received");
+    my $from_header = $email->header("From");
+    my @received = $email->header("Received");
 
-    $mail->header_set("From", 'Simon Cozens <simon@cpan.org>');
+    $email->header_set("From", 'Simon Cozens <simon@cpan.org>');
 
-    my $old_body = $mail->body;
-    $mail->body_set("Hello world\nSimon");
+    my $old_body = $email->body;
+    $email->body_set("Hello world\nSimon");
 
-    print $mail->as_string;
+    print $email->as_string;
 
     # AND THAT'S ALL.
 
 =head1 DESCRIPTION
 
-C<Email::Simple> is the first deliverable of the "Perl Email Project", a
-reaction against the complexity and increasing bugginess of the
-C<Mail::*> modules. In contrast, C<Email::*> modules are meant to be
+C<Email::Simple> is the first deliverable of the "Perl Email Project."  The
+Email:: namespace is a reaction against the complexity and increasing bugginess
+of the C<Mail::*> modules.  In contrast, C<Email::*> modules are meant to be
 simple to use and to maintain, pared to the bone, fast, minimal in their
 external dependencies, and correct.
-
-    Can you sum up plan 9 in layman's terms?
-    It does everything Unix does only less reliably - kt
 
 =head1 METHODS
 
@@ -103,7 +99,9 @@ sub _read_headers {
             # This is a continuation line. We fold it onto the end of
             # the previous header.
             chomp $head_hash->{$curhead}->[-1];
-            $head_hash->{$curhead}->[-1] .= $head_hash->{$curhead}->[-1] ? " $_" : $_;
+            $head_hash->{$curhead}->[-1] .= $head_hash->{$curhead}->[-1]
+                                          ? " $_"
+                                          : $_;
         } else {
             $curhead = $1;
             push @{$head_hash->{$curhead}}, $2;
@@ -115,11 +113,11 @@ sub _read_headers {
 
 =head2 header
 
-Returns a list of the contents of the given header.
+  my @values = $email->header($header_name);
+  my $first  = $email->header($header_name);
 
-If called in scalar context, will return the B<first> header so named.
-I'm not sure I like that. Maybe it should always return a list. But it
-doesn't.
+In list context, this returns every value for the named header.  In scalar
+context, it returns the I<first> value for the named header.
 
 =cut
 
@@ -132,7 +130,7 @@ sub header {
 
 =head2 header_set
 
-    $mail->header_set($field, $line1, $line2, ...);
+    $email->header_set($field, $line1, $line2, ...);
 
 Sets the header to contain the given data. If you pass multiple lines
 in, you get multiple headers, and order is retained.
@@ -158,6 +156,43 @@ sub header_set {
 
     $self->{head}->{$field} = [ @data ];
     return wantarray ? @data : $data[0];
+}
+
+=head2 header_names
+
+    my @header_names = $email->header_names;
+
+This method returns the list of header names currently in the email object.
+These names can be passed to the C<header> method one-at-a-time to get header
+values. You are guaranteed to get a set of headers that are unique. You are not
+guaranteed to get the headers in any order at all.
+
+For backwards compatibility, this method can also be called as B<headers>.
+
+=cut
+
+sub header_names {
+    values %{ $_[0]->{header_names} }
+}
+BEGIN { *headers = \&header_names; }
+
+=head2 header_pairs
+
+  my @headers = $email->header_pairs;
+
+=cut
+
+sub header_pairs {
+    my ($self) = @_;
+
+    my @headers;
+    my %seen;
+
+    for my $header (@{$self->{order}}) {
+        push @headers, ($header, $self->{head}{$header}[ $seen{$header}++ ]);
+    }
+
+    return @headers;
 }
 
 =head2 body

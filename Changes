@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::Simple.
 
+1.97    2006-08-01
+
+  - bring ->headers method into Email::Simple
+
 1.96    2006-07-28
 
   - output headers in predictable order
