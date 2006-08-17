@@ -1,10 +1,10 @@
 Revision history for Perl extension Email::Simple.
 
-1.98    2006-08-17
+1.980    2006-08-17
 
   - fix _fold() to add a missing line ending [RT #20764]
 
-1.97    2006-08-17
+1.970    2006-08-17
 
   - bring ->headers method into Email::Simple
   - ->header_names and ->header_pairs
