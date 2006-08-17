@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.970';
+$VERSION = '1.980';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
 
@@ -229,7 +229,9 @@ mail, they'll be added to the end.
 
 sub as_string {
     my $self = shift;
-    return _headers_as_string($self).$self->{mycrlf}.$self->body;
+    return $self->_headers_as_string
+        . $self->{mycrlf}
+        . $self->body;
 }
 
 sub _headers_as_string {
@@ -254,7 +256,7 @@ sub _header_as_string {
     my $string = "$field: $data";
 
     return (length $string > 78) ? $self->_fold($string)
-                                 : "$string$self->{mycrlf}";
+                                 : ( $string . $self->{mycrlf} );
 }
 
 sub _fold {
@@ -269,7 +271,7 @@ sub _fold {
             $folded .= " " if $line;
         } else {
             # Basically nothing we can do. :(
-            $folded .= $line;
+            $folded .= $line . $self->{mycrlf};
             last;
         }
     }

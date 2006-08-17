@@ -16,6 +16,7 @@ t/many-repeats.t
 t/no-body.t
 t/pod-coverage.t
 t/pod.t
+t/preserve-linefeed.t
 t/test-mails/badly-folded
 t/test-mails/badly-folded-noindent
 t/test-mails/josey-fold
