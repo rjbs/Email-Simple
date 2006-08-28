@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.980';
+$VERSION = '1.981';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
 
@@ -52,6 +52,9 @@ and return an object.
 
 sub new {
     my ($class, $text) = @_;
+
+    croak 'Unable to parse undefined message' if !defined $text;
+
     my ($head, $body, $mycrlf) = _split_head_from_body($text);
     my ($head_hash, $order) = _read_headers($head);
     bless {
