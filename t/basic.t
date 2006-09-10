@@ -19,7 +19,11 @@ my $sc = 'Simon Cozens <simon@cpan.org>';
 is($mail->header_set("From", $sc), $sc, "Setting returns new value");
 is($mail->header("From"), $sc, "Which is consistently returned");
 
-is($mail->header("Bogus"), '', "missing header returns '' (this may change!)");
+is(
+  $mail->header("Bogus"),
+  undef,
+  "missing header returns undef"
+);
 
 # Put andrew back:
 $mail->header_set("From", $old_from);

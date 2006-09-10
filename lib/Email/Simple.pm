@@ -5,7 +5,7 @@ use strict;
 use Carp;
 
 use vars qw($VERSION $GROUCHY);
-$VERSION = '1.981';
+$VERSION = '1.990';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
 
@@ -124,7 +124,10 @@ context, it returns the I<first> value for the named header.
 
 sub header {
     my ($self, $field) = @_;
-    return '' unless $field = $self->{header_names}->{lc $field};
+    return unless
+      (exists $self->{header_names}->{lc $field})
+      and $field = $self->{header_names}->{lc $field};
+
     return wantarray ? @{$self->{head}->{$field}}
                      :   $self->{head}->{$field}->[0];
 }
