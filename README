@@ -1,0 +1,87 @@
+NAME
+    Email::Simple - Simple parsing of RFC2822 message format and headers
+
+SYNOPSIS
+        my $mail = Email::Simple->new($text);
+
+        my $from_header = $mail->header("From");
+        my @received = $mail->header("Received");
+
+        $mail->header_set("From", 'Simon Cozens <simon@cpan.org>');
+
+        my $old_body = $mail->body;
+        $mail->body_set("Hello world\nSimon");
+
+        print $mail->as_string;
+
+        # AND THAT'S ALL.
+
+DESCRIPTION
+    "Email::Simple" is the first deliverable of the "Perl Email Project", a
+    reaction against the complexity and increasing bugginess of the
+    "Mail::*" modules. In contrast, "Email::*" modules are meant to be
+    simple to use and to maintain, pared to the bone, fast, minimal in their
+    external dependencies, and correct.
+
+        Can you sum up plan 9 in layman's terms?
+        It does everything Unix does only less reliably - kt
+
+METHODS
+    Methods are deliberately kept to a minimum. This is meant to be simple.
+    No, I will not add method X. This is meant to be simple. Why doesn't it
+    have feature Y? Because it's meant to be simple.
+
+  new
+    Parse an email from a scalar containing an RFC2822 formatted message,
+    and return an object.
+
+header
+    Returns a list of the contents of the given header.
+
+    If called in scalar context, will return the first header so named. I'm
+    not sure I like that. Maybe it should always return a list. But it
+    doesn't.
+
+  header_set
+        $mail->header_set($field, $line1, $line2, ...);
+
+    Sets the header to contain the given data. If you pass multiple lines
+    in, you get multiple headers, and order is retained.
+
+  body
+    Returns the body text of the mail.
+
+  body_set
+    Sets the body text of the mail.
+
+  as_string
+    Returns the mail as a string, reconstructing the headers. Please note
+    that header fields are kept in order if they are unique, but, for,
+    instance, multiple "Received" headers will be grouped together. (This is
+    in accordance with RFC2822, honest.)
+
+    Also, if you've added new headers with "header_set" that weren't in the
+    original mail, they'll be added to the end.
+
+CAVEATS
+    Email::Simple handles only RFC2822 formatted messages. This means you
+    cannot expect it to cope well as the only parser between you and the
+    outside world, say for example when writing a mail filter for invocation
+    from a .forward file (for this we recommend you use Email::Filter
+    anyway). For more information on this issue please consult RT issue
+    2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
+
+PERL EMAIL PROJECT
+
+This module is maintained by the Perl Email Project
+
+  http://emailproject.perl.org/wiki/Email::Simple
+
+COPYRIGHT AND LICENSE
+    Copyright 2004 by Casey West
+
+    Copyright 2003 by Simon Cozens
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
