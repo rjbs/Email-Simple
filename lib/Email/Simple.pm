@@ -301,7 +301,7 @@ consult RT issue 2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
 
 This module is maintained by the Perl Email Project
 
-  L<http://emailproject.perl.org/wiki/Email::Simple>
+L<http://emailproject.perl.org/wiki/Email::Simple>
 
 =head1 COPYRIGHT AND LICENSE
 
