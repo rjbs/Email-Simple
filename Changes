@@ -1,0 +1,79 @@
+Revision history for Perl extension Email::Simple.
+
+1.992    2006-10-05
+
+  - fix a number of bugs when setting multiple headers, which would often
+    refuse to set more values than were currently present
+  - added a test for prepending (rather than appending) headers; while E::S
+    does not yet support this, the header behavior will be easier to replace in
+    future versions, and this is a forward-looking test
+
+1.990    2006-09-05
+
+  - ->header('foo') returns false if there is no foo header (formerly '')
+  - croak if an undef value is passed to new()
+
+1.980    2006-08-17
+
+  - fix _fold() to add a missing line ending [RT #20764] (Brian Cassidy)
+
+1.970    2006-08-17
+
+  - bring ->headers method into Email::Simple
+  - ->header_names and ->header_pairs
+
+1.96    2006-07-28
+
+  - output headers in predictable order
+  - give tests more meaningful names
+  - improved test coverage
+
+1.95    2006-07-21
+
+  - update PEP url
+  - reorganize dist
+
+1.94    2006-07-03
+
+  - Fix folding of long headers with \r as line ending (thanks Adam Worrall)
+  - add tests for message with no body
+
+1.92    2004-11-11
+
+  - Update dependencies.
+  - Update test suite to support proper Test::More syntax.
+
+1.91    2004-10-27
+
+  - Tests use alarm(), skip those tests on MSWin32.
+  - body() is initialized to '' if it isn't defined.
+  - Author changes.
+
+1.9   Fix our own damned line-wrapping.
+
+1.8   Do our own damned line-wrapping
+
+1.7   Sample, don't assume, what CRLF we're using.
+      This means that mail with funny crlfs is round-trippable.
+
+1.61  fixes to test suite.  there was a 5.6ish open my $fh which led to
+      test failures under 5.00503
+
+1.6 - fixes to test suite.  We were using no_plan which fails on
+      older versions of Test::Harness
+
+1.5 - fixes more warnings during ->as_string calls
+
+      Documents more strongly that Email::Simple is intended for use
+      with RFC2822 messages only
+
+1.4 - fixes a warning emitted during ->as_string calls
+      fix for header unfolding
+1.3 - Many fixes from Richard Clamp <richardc@unixbeard.net>
+1.2 - Text::Wrapper->Text::Wrap
+
+0.01  Thu Feb 13 15:07:01 2003
+	- original version; created by h2xs 1.22 with options
+		-b 5.5.3 -AX -n Email::Simple
+
+Full details are available at http://cvs.simon-cozens.org/
