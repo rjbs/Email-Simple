@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 18;
+use Test::More tests => 17;
 
 sub read_file { local $/; local *FH; open FH, shift or die $!; return <FH> }
 use_ok("Email::Simple");
@@ -8,8 +8,6 @@ use_ok("Email::Simple");
 my $mail_text = read_file("t/test-mails/josey-nofold");
 my $mail = Email::Simple->new($mail_text);
 isa_ok($mail, "Email::Simple");
-
-like($mail->{head}->{From}->[0], qr/Andrew/, "Andrew's in the header");
 
 my $old_from;
 is($old_from = $mail->header("From"), 

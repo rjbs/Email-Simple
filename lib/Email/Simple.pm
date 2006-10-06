@@ -2,14 +2,12 @@ package Email::Simple;
 
 use 5.00503;
 use strict;
-use Carp;
+use Carp ();
 
-use vars qw($VERSION $GROUCHY);
-$VERSION = '1.992';
+$Email::Simple::VERSION = '1.995';
+$Email::Simple::GROUCHY = 0;
 
-my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
-
-$GROUCHY = 0;
+my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
 
 =head1 NAME
 
@@ -51,65 +49,91 @@ and return an object.
 =cut
 
 sub new {
-    my ($class, $text) = @_;
+  my ($class, $text) = @_;
 
-    croak 'Unable to parse undefined message' if !defined $text;
+  Carp::croak 'Unable to parse undefined message' if !defined $text;
 
-    my ($head, $body, $mycrlf) = _split_head_from_body($text);
-    my ($head_hash, $order) = _read_headers($head);
-    bless {
-        head   => $head_hash,
-        body   => $body,
-        order  => $order,
-        mycrlf => $mycrlf,
-        header_names => { map { lc $_ => $_ } keys %$head_hash }
-    }, $class;
+  my ($head, $body, $mycrlf) = _split_head_from_body($text);
+
+  my $self = bless { body => $body, mycrlf => $mycrlf } => $class;
+
+  $self->__read_header($head);
+
+  return $self;
 }
 
 sub _split_head_from_body {
-    my $text = shift;
-    # The body is simply a sequence of characters that
-    # follows the header and is separated from the header by an empty
-    # line (i.e., a line with nothing preceding the CRLF).
-    #  - RFC 2822, section 2.1
-    if ($text =~ /(.*?($crlf))\2(.*)/sm) {
-        return ($1, ($3 || ''), $2);
-    } else { # The body is, of course, optional.
-        return ($text, "", "\n");
-    }
+  my $text = shift;
+
+  # The body is simply a sequence of characters that
+  # follows the header and is separated from the header by an empty
+  # line (i.e., a line with nothing preceding the CRLF).
+  #  - RFC 2822, section 2.1
+  if ($text =~ /(.*?($crlf))\2(.*)/sm) {
+    return ($1, ($3 || ''), $2);
+  } else {  # The body is, of course, optional.
+    return ($text, "", "\n");
+  }
 }
 
-# Header fields are lines composed of a field name, followed by a colon
-# (":"), followed by a field body, and terminated by CRLF.  A field
-# name MUST be composed of printable US-ASCII characters (i.e.,
-# characters that have values between 33 and 126, inclusive), except
-# colon.  A field body may be composed of any US-ASCII characters,
-# except for CR and LF.
+# Header fields are lines composed of a field name, followed by a colon (":"),
+# followed by a field body, and terminated by CRLF.  A field name MUST be
+# composed of printable US-ASCII characters (i.e., characters that have values
+# between 33 and 126, inclusive), except colon.  A field body may be composed
+# of any US-ASCII characters, except for CR and LF.
 
-# However, a field body may contain CRLF when
-# used in header "folding" and  "unfolding" as described in section
-# 2.2.3.
+# However, a field body may contain CRLF when used in header "folding" and
+# "unfolding" as described in section 2.2.3.
+
+sub __headers_to_list {
+  my ($self, $head) = @_;
+
+  my @headers;
+
+  for (split /$crlf/, $head) {
+    if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
+      # This is a continuation line. We fold it onto the end of
+      # the previous header.
+      next if !@headers;  # Well, that sucks.  We're continuing nothing?
+
+      $headers[-1][1] .= $headers[-1][1] ? " $_" : $_;
+    } else {
+      push @headers, [ $1, $2 ];
+    }
+  }
+
+  return \@headers;
+}
 
 sub _read_headers {
-    my $head = shift;
-    my @head_order;
-    my ($curhead, $head_hash) = ("", {});
-    for (split /$crlf/, $head) {
-        if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
-            next if !$curhead; # Well, that sucks.
-            # This is a continuation line. We fold it onto the end of
-            # the previous header.
-            chomp $head_hash->{$curhead}->[-1];
-            $head_hash->{$curhead}->[-1] .= $head_hash->{$curhead}->[-1]
-                                          ? " $_"
-                                          : $_;
-        } else {
-            $curhead = $1;
-            push @{$head_hash->{$curhead}}, $2;
-            push @head_order, $curhead;
-        }
-    }
-    return ($head_hash, \@head_order);
+  Carp::carp "Email::Simple::_read_headers is private and depricated";
+  my ($head) = @_;  # ARG!  Why is this a function? -- rjbs
+  my $dummy = bless {} => __PACKAGE__;
+  $dummy->__read_header($head);
+  my $h = $dummy->__head->{head};
+  my $o = $dummy->__head->{order};
+  return ($h, $o);
+}
+
+sub __read_header {
+  my ($self, $head) = @_;
+
+  my $headers = $self->__headers_to_list($head);
+
+  $self->{_head}
+    = Email::Simple::__Header->new($headers, { crlf => $self->{mycrlf} });
+}
+
+sub __head {
+  my ($self) = @_;
+  return $self->{_head} if $self->{_head};
+
+  if ($self->{head} and $self->{order} and $self->{header_names}) {
+    Carp::carp "Email::Simple subclass appears to have broken header behavior";
+    my $head = bless {} => 'Email::Simple::__Header';
+    $head->{$_} = $self->{$_} for qw(head order header_names mycrlf);
+    return $self->{_head} = $head;
+  }
 }
 
 =head2 header
@@ -122,15 +146,7 @@ context, it returns the I<first> value for the named header.
 
 =cut
 
-sub header {
-    my ($self, $field) = @_;
-    return unless
-      (exists $self->{header_names}->{lc $field})
-      and $field = $self->{header_names}->{lc $field};
-
-    return wantarray ? @{$self->{head}->{$field}}
-                     :   $self->{head}->{$field}->[0];
-}
+sub header { $_[0]->__head->header($_[1]); }
 
 =head2 header_set
 
@@ -141,36 +157,7 @@ in, you get multiple headers, and order is retained.
 
 =cut
 
-sub header_set {
-    my ($self, $field, @data) = @_;
-    if ($GROUCHY) {
-        croak "field name contains illegal characters"
-            unless $field =~ /^[\x21-\x39\x3b-\x7e]+$/;
-        carp "field name is not limited to hyphens and alphanumerics"
-            unless $field =~ /^[\w-]+$/;
-    }
-
-    if (!exists $self->{header_names}->{lc $field}) {
-        $self->{header_names}->{lc $field} = $field;
-        # New fields are added to the end.
-        push @{$self->{order}}, $field;
-    } else {
-        $field = $self->{header_names}->{lc $field};
-    }
-
-    my @loci = grep { lc $self->{order}[$_] eq lc $field }
-               0 ..  $#{$self->{order}};
-
-    if (@loci > @data) {
-      my $overage = @loci - @data;
-      splice @{$self->{order}}, $_, 1 for reverse @loci[ -$overage, $#loci ];
-    } elsif (@data > @loci) {
-      push @{$self->{order}}, ($field) x (@data - @loci);
-    }
-
-    $self->{head}->{$field} = [ @data ];
-    return wantarray ? @data : $data[0];
-}
+sub header_set { (shift)->__head->header_set(@_); }
 
 =head2 header_names
 
@@ -185,29 +172,20 @@ For backwards compatibility, this method can also be called as B<headers>.
 
 =cut
 
-sub header_names {
-    values %{ $_[0]->{header_names} }
-}
+sub header_names { $_[0]->__head->header_names }
 BEGIN { *headers = \&header_names; }
 
 =head2 header_pairs
 
   my @headers = $email->header_pairs;
 
+This method returns a list of pairs describing the contents of the header.
+Every other value, starting with and including zeroth, is a header name and the
+value following it is the header value.
+
 =cut
 
-sub header_pairs {
-    my ($self) = @_;
-
-    my @headers;
-    my %seen;
-
-    for my $header (@{$self->{order}}) {
-        push @headers, ($header, $self->{head}{$header}[ $seen{$header}++ ]);
-    }
-
-    return @headers;
-}
+sub header_pairs { $_[0]->__head->header_pairs }
 
 =head2 body
 
@@ -237,6 +215,29 @@ mail, they'll be added to the end.
 
 =cut
 
+sub as_string {
+  my $self = shift;
+  return $self->__head->as_string . $self->{mycrlf} . $self->body;
+}
+
+package Email::Simple::__Header;
+
+sub new {
+  my ($class, $headers, $arg) = @_;
+
+  my $self = {};
+  $self->{mycrlf} = $arg->{crlf} || "\n";
+
+  for my $header (@$headers) {
+    push @{ $self->{order} }, $header->[0];
+    push @{ $self->{head}{ $header->[0] } }, $header->[1];
+  }
+
+  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
+
+  bless $self => $class;
+}
+
 # RFC 2822, 3.6:
 # ...for the purposes of this standard, header fields SHOULD NOT be reordered
 # when a message is transported or transformed.  More importantly, the trace
@@ -244,54 +245,112 @@ mail, they'll be added to the end.
 # kept in blocks prepended to the message.
 
 sub as_string {
-    my $self = shift;
-    return $self->_headers_as_string
-        . $self->{mycrlf}
-        . $self->body;
-}
+  my ($self) = @_;
 
-sub _headers_as_string {
-    my ($self) = @_;
+  my $header_str = '';
+  my @pairs      = $self->header_pairs;
 
-    my $header_str = '';
-    my @pairs = $self->header_pairs;
+  while (my ($name, $value) = splice @pairs, 0, 2) {
+    $header_str .= $self->_header_as_string($name, $value);
+  }
 
-    while (my ($name, $value) = splice @pairs, 0, 2) {
-        $header_str .= $self->_header_as_string($name, $value);
-    }
-
-    return $header_str;
+  return $header_str;
 }
 
 sub _header_as_string {
-    my ($self, $field, $data) = @_;
+  my ($self, $field, $data) = @_;
 
-    # Ignore "empty" headers
-    return '' unless defined $data;
+  # Ignore "empty" headers
+  return '' unless defined $data;
 
-    my $string = "$field: $data";
+  my $string = "$field: $data";
 
-    return (length $string > 78) ? $self->_fold($string)
-                                 : ( $string . $self->{mycrlf} );
+  return (length $string > 78)
+    ? $self->_fold($string)
+    : ($string . $self->{mycrlf});
 }
 
 sub _fold {
-    my $self = shift;
-    my $line = shift;
-    # We know it will not contain any new lines at present
-    my $folded = "";
-    while ($line) {
-        $line =~ s/^\s+//;
-        if ($line =~ s/^(.{0,77})(\s|\z)//) {
-            $folded .= $1.$self->{mycrlf};
-            $folded .= " " if $line;
-        } else {
-            # Basically nothing we can do. :(
-            $folded .= $line . $self->{mycrlf};
-            last;
-        }
+  my $self = shift;
+  my $line = shift;
+
+  # We know it will not contain any new lines at present
+  my $folded = "";
+  while ($line) {
+    $line =~ s/^\s+//;
+    if ($line =~ s/^(.{0,77})(\s|\z)//) {
+      $folded .= $1 . $self->{mycrlf};
+      $folded .= " " if $line;
+    } else {
+
+      # Basically nothing we can do. :(
+      $folded .= $line . $self->{mycrlf};
+      last;
     }
-    return $folded;
+  }
+  return $folded;
+}
+
+sub header_names {
+  values %{ $_[0]->{header_names} };
+}
+
+sub header_pairs {
+  my ($self) = @_;
+
+  my @headers;
+  my %seen;
+
+  for my $header (@{ $self->{order} }) {
+    push @headers, ($header, $self->{head}{$header}[ $seen{$header}++ ]);
+  }
+
+  return @headers;
+}
+
+sub header {
+  my ($self, $field) = @_;
+  return
+    unless (exists $self->{header_names}->{ lc $field })
+    and $field = $self->{header_names}->{ lc $field };
+
+  return wantarray
+    ? @{ $self->{head}->{$field} }
+    : $self->{head}->{$field}->[0];
+}
+
+sub header_set {
+  my ($self, $field, @data) = @_;
+
+  # I hate this block. -- rjbs, 2006-10-06
+  if ($Email::Simple::GROUCHY) {
+    Carp::croak "field name contains illegal characters"
+      unless $field =~ /^[\x21-\x39\x3b-\x7e]+$/;
+    Carp::carp "field name is not limited to hyphens and alphanumerics"
+      unless $field =~ /^[\w-]+$/;
+  }
+
+  if (!exists $self->{header_names}->{ lc $field }) {
+    $self->{header_names}->{ lc $field } = $field;
+
+    # New fields are added to the end.
+    push @{ $self->{order} }, $field;
+  } else {
+    $field = $self->{header_names}->{ lc $field };
+  }
+
+  my @loci =
+    grep { lc $self->{order}[$_] eq lc $field } 0 .. $#{ $self->{order} };
+
+  if (@loci > @data) {
+    my $overage = @loci - @data;
+    splice @{ $self->{order} }, $_, 1 for reverse @loci[ -$overage, $#loci ];
+  } elsif (@data > @loci) {
+    push @{ $self->{order} }, ($field) x (@data - @loci);
+  }
+
+  $self->{head}->{$field} = [@data];
+  return wantarray ? @data : $data[0];
 }
 
 1;

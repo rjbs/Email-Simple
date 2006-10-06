@@ -22,8 +22,8 @@ isa_ok($email, "Email::Simple");
 sub Email::Simple::header_prepend {
   my ($self, $field, @values) = @_;
 
-  unshift @{ $self->{order} }, ($field) x @values;
-  unshift @{ $self->{head}->{$field} }, @values;
+  unshift @{ $self->{_head}{order} }, ($field) x @values;
+  unshift @{ $self->{_head}{head}->{$field} }, @values;
 }
 
 $email->header_prepend(Alpha => 'this header comes firstest');
