@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+1.995    2006-10-19
+  - tentative refactoring of headers
+
 1.992    2006-10-05
 
   - fix a number of bugs when setting multiple headers, which would often
