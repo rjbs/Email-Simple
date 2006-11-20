@@ -30,3 +30,4 @@ t/test-mails/long-msgid
 t/test-mails/many-repeats
 t/undef-message.t
 t/unit.t
+LICENSE
