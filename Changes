@@ -1,5 +1,10 @@
 Revision history for Perl extension Email::Simple.
 
+1.996    2006-11-27
+  - do not wrap Content-Type field; it can cause Outlook to go nuts
+    while this is a special case, it does not make E::S incorrect, as folding
+    long headers is allowed (for aesthetics) and not mandated
+
 1.995    2006-10-19
   - tentative refactoring of headers
 

@@ -4,7 +4,7 @@ use 5.00503;
 use strict;
 use Carp ();
 
-$Email::Simple::VERSION = '1.995';
+$Email::Simple::VERSION = '1.996';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
@@ -265,7 +265,7 @@ sub _header_as_string {
 
   my $string = "$field: $data";
 
-  return (length $string > 78)
+  return ((length $string > 78) and (lc $field ne 'content-type'))
     ? $self->_fold($string)
     : ($string . $self->{mycrlf});
 }

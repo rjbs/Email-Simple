@@ -6,6 +6,7 @@ MANIFEST
 README
 t/badly-folded.t
 t/basic.t
+t/ct-header.t
 t/folding.t
 t/header-case.t
 t/header-junk.t
