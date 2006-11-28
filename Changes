@@ -2,7 +2,10 @@ Revision history for Perl extension Email::Simple.
 
 1.997_01 2006-11-??
   - major refactoring of guts
-    greatly reduce memory footprint
+  - boldly moving forward with refactored headers and Email::Simple:::Header
+  - greatly reduce memory footprint
+  - add crlf method to allow other modules to avoid ->{mycrlf}
+  - fix broken header-junk test
 
 1.996    2006-11-27
   - do not wrap Content-Type field; it can cause Outlook to go nuts

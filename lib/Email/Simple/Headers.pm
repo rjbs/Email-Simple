@@ -4,8 +4,9 @@ use strict;
 use vars qw[$VERSION];
 $VERSION = '1.970';
 
-# XXX: In the future, this should throw a "stop using me!" warning.
-#      -- rjbs, 2006-08-01
+use Carp ();
+Carp::carp 'Email::Simple::Headers is deprecated; using it does nothing'
+  unless $ENV{HARNESS_ACTIVE};
 
 1;
 

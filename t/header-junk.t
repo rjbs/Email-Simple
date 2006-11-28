@@ -11,4 +11,4 @@ my $mail_text = read_file("t/test-mails/junk-in-header");
 my $mail = Email::Simple->new($mail_text);
 isa_ok($mail, "Email::Simple");
 
-unlike($mail->body, qr/linden/, "junk droped from header");
+unlike($mail->as_string, qr/linden/, "junk droped from header");

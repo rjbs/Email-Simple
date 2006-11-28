@@ -4,6 +4,8 @@ use 5.00503;
 use strict;
 use Carp ();
 
+use Email::Simple::Header;
+
 $Email::Simple::VERSION = '1.998';
 $Email::Simple::GROUCHY = 0;
 
@@ -30,16 +32,12 @@ Email::Simple - Simple parsing of RFC2822 message format and headers
 =head1 DESCRIPTION
 
 C<Email::Simple> is the first deliverable of the "Perl Email Project."  The
-Email:: namespace is a reaction against the complexity and increasing bugginess
-of the C<Mail::*> modules.  In contrast, C<Email::*> modules are meant to be
-simple to use and to maintain, pared to the bone, fast, minimal in their
+Email:: namespace was begun as a reaction against the increasing complexity and
+bugginess of Perl's existing email modules.  C<Email::*> modules are meant to
+be simple to use and to maintain, pared to the bone, fast, minimal in their
 external dependencies, and correct.
 
 =head1 METHODS
-
-Methods are deliberately kept to a minimum. This is meant to be simple.
-No, I will not add method X. This is meant to be simple. Why doesn't it
-have feature Y? Because it's meant to be simple.
 
 =head2 new
 
@@ -53,40 +51,52 @@ sub new {
 
   Carp::croak 'Unable to parse undefined message' if !defined $text;
 
-  my $ref = ref $text ? $text : \$text;
+  my $text_ref = ref $text ? $text : \$text;
 
-  my ($pos, $mycrlf) = $class->_split_head_from_body($ref);
+  my ($pos, $mycrlf) = $class->_split_head_from_body($text_ref);
 
   my $self = bless { mycrlf => $mycrlf } => $class;
 
   my $head;
   if (defined $pos) {
-    $head = substr $$ref, 0, $pos, '';
+    $head = substr $$text_ref, 0, $pos, '';
   } else {
-    $head = $$ref;
-    $ref = \'';
+    $head = $$text_ref;
+    $text_ref = \'';
   }
 
-  $self->{body} = $ref;
+  $self->{body} = $text_ref;
 
-  $self->__read_header($head);
+  $self->header_obj_set(
+    Email::Simple::Header->new($head, { crlf => $self->crlf })
+  );
 
   return $self;
 }
 
+# Given the text of an email, return ($pos, $crlf) where $pos is the position
+# at which the body text begins and $crlf is the type of newline used in the
+# message.
 sub _split_head_from_body {
   my ($self, $text_ref) = @_;
 
-  # The body is simply a sequence of characters that follows the header and is
-  # separated from the header by an empty line (i.e., a line with nothing
-  # preceding the CRLF).
-  #  - RFC 2822, section 2.1
-  if ($$text_ref =~ /(.*?($crlf))(?=\2)/gsm) {
-    return(pos($$text_ref) + length($2), $2);
-  } else {  # The body is, of course, optional.
+  # For body/header division, see RFC 2822, section 2.1
+  if ($$text_ref =~ /(.*?($crlf))\2/gsm) {
+    return(pos($$text_ref), $2);
+  } else {
+    # The body is, of course, optional.
     return(undef, "\n");
   }
 }
+
+=head2 header_obj
+
+  my $header = $email->header_obj;
+
+This method returns the object representing the email's header, and at present
+exists primarily for internal consumption.
+
+=cut
 
 # Header fields are lines composed of a field name, followed by a colon (":"),
 # followed by a field body, and terminated by CRLF.  A field name MUST be
@@ -97,55 +107,51 @@ sub _split_head_from_body {
 # However, a field body may contain CRLF when used in header "folding" and
 # "unfolding" as described in section 2.2.3.
 
-sub __headers_to_list {
-  my ($self, $head) = @_;
-
-  my @headers;
-
-  for (split /$crlf/, $head) {
-    if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
-      # This is a continuation line. We fold it onto the end of
-      # the previous header.
-      next if !@headers;  # Well, that sucks.  We're continuing nothing?
-
-      $headers[-1][1] .= $headers[-1][1] ? " $_" : $_;
-    } else {
-      push @headers, [ $1, $2 ];
-    }
-  }
-
-  return \@headers;
-}
-
-sub _read_headers {
-  Carp::carp "Email::Simple::_read_headers is private and depricated";
-  my ($head) = @_;  # ARG!  Why is this a function? -- rjbs
-  my $dummy = bless {} => __PACKAGE__;
-  $dummy->__read_header($head);
-  my $h = $dummy->__head->{head};
-  my $o = $dummy->__head->{order};
-  return ($h, $o);
-}
-
-sub __read_header {
-  my ($self, $head) = @_;
-
-  my $headers = $self->__headers_to_list($head);
-
-  $self->{_head}
-    = Email::Simple::__Header->new($headers, { crlf => $self->{mycrlf} });
-}
-
-sub __head {
+sub header_obj {
   my ($self) = @_;
   return $self->{_head} if $self->{_head};
 
   if ($self->{head} and $self->{order} and $self->{header_names}) {
     Carp::carp "Email::Simple subclass appears to have broken header behavior";
-    my $head = bless {} => 'Email::Simple::__Header';
+    my $head = bless {} => 'Email::Simple::Header';
     $head->{$_} = $self->{$_} for qw(head order header_names mycrlf);
     return $self->{_head} = $head;
   }
+}
+
+# Probably needs to exist in perpetuity for modules released during the "__head
+# is tentative" phase, until we have a way to force modules below us on the
+# dependency tree to upgrade.  i.e., never and/or in Perl 6 -- rjbs, 2006-11-28
+BEGIN { *__head = \&header_obj };
+
+sub _read_headers {
+  Carp::carp "Email::Simple::_read_headers is private and depricated";
+  my ($head) = @_;  # ARG!  Why is this a function? -- rjbs
+  my $header_obj = Email::Simple::Header->new(\$head);
+  my $h = $header_obj->{head};
+  my $o = $header_obj->{order};
+  return ($h, $o);
+}
+
+sub __read_header {
+  my ($self, $head_str) = @_;
+
+  my $head = ref $head_str ? $head_str : \$head_str;
+
+}
+
+=head2 header_obj_set
+
+  $email->header_obj_set($new_header_obj);
+
+This method substitutes the given new header object for the email's existing
+header object.
+
+=cut
+
+sub header_obj_set {
+  my ($self, $obj) = @_;
+  $self->{_head} = $obj;
 }
 
 =head2 header
@@ -158,7 +164,7 @@ context, it returns the I<first> value for the named header.
 
 =cut
 
-sub header { $_[0]->__head->header($_[1]); }
+sub header { $_[0]->header_obj->header($_[1]); }
 
 =head2 header_set
 
@@ -169,7 +175,7 @@ in, you get multiple headers, and order is retained.
 
 =cut
 
-sub header_set { (shift)->__head->header_set(@_); }
+sub header_set { (shift)->header_obj->header_set(@_); }
 
 =head2 header_names
 
@@ -184,7 +190,7 @@ For backwards compatibility, this method can also be called as B<headers>.
 
 =cut
 
-sub header_names { $_[0]->__head->header_names }
+sub header_names { $_[0]->header_obj->header_names }
 BEGIN { *headers = \&header_names; }
 
 =head2 header_pairs
@@ -197,7 +203,7 @@ value following it is the header value.
 
 =cut
 
-sub header_pairs { $_[0]->__head->header_pairs }
+sub header_pairs { $_[0]->header_obj->header_pairs }
 
 =head2 body
 
@@ -207,9 +213,7 @@ Returns the body text of the mail.
 
 sub body {
   my ($self) = @_;
-  return (defined($self->{body}) && defined(${ $self->{body} }))
-       ? ${ $self->{body} }
-       : '';
+  return (defined ${ $self->{body} }) ? ${ $self->{body} } : '';
 }
 
 =head2 body_set
@@ -220,7 +224,8 @@ Sets the body text of the mail.
 
 sub body_set {
   my ($self, $text) = @_;
-  $self->{body} = \$text;
+  my $text_ref = ref $text ? $text : \$text;
+  $self->{body} = $text_ref;
   $self->body;
 }
 
@@ -228,148 +233,21 @@ sub body_set {
 
 Returns the mail as a string, reconstructing the headers.
 
-If you've added new headers with C<header_set> that weren't in the original
-mail, they'll be added to the end.
-
 =cut
 
 sub as_string {
   my $self = shift;
-  return $self->__head->as_string . $self->{mycrlf} . $self->body;
+  return $self->header_obj->as_string . $self->crlf . $self->body;
 }
 
-package Email::Simple::__Header;
+=head2 crlf
 
-sub new {
-  my ($class, $headers, $arg) = @_;
+This method returns the type of newline used in the email.  It is an accessor
+only.
 
-  my $self = {};
-  $self->{mycrlf} = $arg->{crlf} || "\n";
+=cut
 
-  for my $header (@$headers) {
-    push @{ $self->{order} }, $header->[0];
-    push @{ $self->{head}{ $header->[0] } }, $header->[1];
-  }
-
-  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
-
-  bless $self => $class;
-}
-
-# RFC 2822, 3.6:
-# ...for the purposes of this standard, header fields SHOULD NOT be reordered
-# when a message is transported or transformed.  More importantly, the trace
-# header fields and resent header fields MUST NOT be reordered, and SHOULD be
-# kept in blocks prepended to the message.
-
-sub as_string {
-  my ($self) = @_;
-
-  my $header_str = '';
-  my @pairs      = $self->header_pairs;
-
-  while (my ($name, $value) = splice @pairs, 0, 2) {
-    $header_str .= $self->_header_as_string($name, $value);
-  }
-
-  return $header_str;
-}
-
-sub _header_as_string {
-  my ($self, $field, $data) = @_;
-
-  # Ignore "empty" headers
-  return '' unless defined $data;
-
-  my $string = "$field: $data";
-
-  return ((length $string > 78) and (lc $field ne 'content-type'))
-    ? $self->_fold($string)
-    : ($string . $self->{mycrlf});
-}
-
-sub _fold {
-  my $self = shift;
-  my $line = shift;
-
-  # We know it will not contain any new lines at present
-  my $folded = "";
-  while ($line) {
-    $line =~ s/^\s+//;
-    if ($line =~ s/^(.{0,77})(\s|\z)//) {
-      $folded .= $1 . $self->{mycrlf};
-      $folded .= " " if $line;
-    } else {
-
-      # Basically nothing we can do. :(
-      $folded .= $line . $self->{mycrlf};
-      last;
-    }
-  }
-  return $folded;
-}
-
-sub header_names {
-  values %{ $_[0]->{header_names} };
-}
-
-sub header_pairs {
-  my ($self) = @_;
-
-  my @headers;
-  my %seen;
-
-  for my $header (@{ $self->{order} }) {
-    push @headers, ($header, $self->{head}{$header}[ $seen{$header}++ ]);
-  }
-
-  return @headers;
-}
-
-sub header {
-  my ($self, $field) = @_;
-  return
-    unless (exists $self->{header_names}->{ lc $field })
-    and $field = $self->{header_names}->{ lc $field };
-
-  return wantarray
-    ? @{ $self->{head}->{$field} }
-    : $self->{head}->{$field}->[0];
-}
-
-sub header_set {
-  my ($self, $field, @data) = @_;
-
-  # I hate this block. -- rjbs, 2006-10-06
-  if ($Email::Simple::GROUCHY) {
-    Carp::croak "field name contains illegal characters"
-      unless $field =~ /^[\x21-\x39\x3b-\x7e]+$/;
-    Carp::carp "field name is not limited to hyphens and alphanumerics"
-      unless $field =~ /^[\w-]+$/;
-  }
-
-  if (!exists $self->{header_names}->{ lc $field }) {
-    $self->{header_names}->{ lc $field } = $field;
-
-    # New fields are added to the end.
-    push @{ $self->{order} }, $field;
-  } else {
-    $field = $self->{header_names}->{ lc $field };
-  }
-
-  my @loci =
-    grep { lc $self->{order}[$_] eq lc $field } 0 .. $#{ $self->{order} };
-
-  if (@loci > @data) {
-    my $overage = @loci - @data;
-    splice @{ $self->{order} }, $_, 1 for reverse @loci[ -$overage, $#loci ];
-  } elsif (@data > @loci) {
-    push @{ $self->{order} }, ($field) x (@data - @loci);
-  }
-
-  $self->{head}->{$field} = [@data];
-  return wantarray ? @data : $data[0];
-}
+sub crlf { $_[0]->{mycrlf} }
 
 1;
 
@@ -382,7 +260,7 @@ cannot expect it to cope well as the only parser between you and the
 outside world, say for example when writing a mail filter for
 invocation from a .forward file (for this we recommend you use
 L<Email::Filter> anyway).  For more information on this issue please
-consult RT issue 2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
+consult RT issue 2478, L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
 
 =head1 PERL EMAIL PROJECT
 

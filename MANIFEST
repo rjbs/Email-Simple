@@ -1,5 +1,6 @@
 Changes
 lib/Email/Simple.pm
+lib/Email/Simple/Header.pm
 lib/Email/Simple/Headers.pm
 Makefile.PL
 MANIFEST
