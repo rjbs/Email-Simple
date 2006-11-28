@@ -4,7 +4,7 @@ use 5.00503;
 use strict;
 use Carp ();
 
-$Email::Simple::VERSION = '1.996';
+$Email::Simple::VERSION = '1.998';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
@@ -53,9 +53,21 @@ sub new {
 
   Carp::croak 'Unable to parse undefined message' if !defined $text;
 
-  my ($head, $body, $mycrlf) = _split_head_from_body($text);
+  my $ref = ref $text ? $text : \$text;
 
-  my $self = bless { body => $body, mycrlf => $mycrlf } => $class;
+  my ($pos, $mycrlf) = $class->_split_head_from_body($ref);
+
+  my $self = bless { mycrlf => $mycrlf } => $class;
+
+  my $head;
+  if (defined $pos) {
+    $head = substr $$ref, 0, $pos, '';
+  } else {
+    $head = $$ref;
+    $ref = \'';
+  }
+
+  $self->{body} = $ref;
 
   $self->__read_header($head);
 
@@ -63,16 +75,16 @@ sub new {
 }
 
 sub _split_head_from_body {
-  my $text = shift;
+  my ($self, $text_ref) = @_;
 
-  # The body is simply a sequence of characters that
-  # follows the header and is separated from the header by an empty
-  # line (i.e., a line with nothing preceding the CRLF).
+  # The body is simply a sequence of characters that follows the header and is
+  # separated from the header by an empty line (i.e., a line with nothing
+  # preceding the CRLF).
   #  - RFC 2822, section 2.1
-  if ($text =~ /(.*?($crlf))\2(.*)/sm) {
-    return ($1, ($3 || ''), $2);
+  if ($$text_ref =~ /(.*?($crlf))(?=\2)/gsm) {
+    return(pos($$text_ref) + length($2), $2);
   } else {  # The body is, of course, optional.
-    return ($text, "", "\n");
+    return(undef, "\n");
   }
 }
 
@@ -195,7 +207,9 @@ Returns the body text of the mail.
 
 sub body {
   my ($self) = @_;
-  return defined($self->{body}) ? $self->{body} : '';
+  return (defined($self->{body}) && defined(${ $self->{body} }))
+       ? ${ $self->{body} }
+       : '';
 }
 
 =head2 body_set
@@ -204,7 +218,11 @@ Sets the body text of the mail.
 
 =cut
 
-sub body_set { $_[0]->{body} = $_[1]; $_[0]->body }
+sub body_set {
+  my ($self, $text) = @_;
+  $self->{body} = \$text;
+  $self->body;
+}
 
 =head2 as_string
 

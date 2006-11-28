@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 sub read_file { local $/; local *FH; open FH, shift or die $!; return <FH> }
 use_ok("Email::Simple");
@@ -71,8 +71,9 @@ is(Email::Simple->new($mail->as_string)->as_string, $mail_text, "Good grief, it'
 # With nasty newlines
 my $nasty = "Subject: test\n\rTo: foo\n\r\n\rfoo\n\r";
 $mail = Email::Simple->new($nasty);
-my ($x,$y) = Email::Simple::_split_head_from_body($nasty);
-is ($x, "Subject: test\n\rTo: foo\n\r", "Can split head OK");
+my ($pos, $mycrlf) = Email::Simple->_split_head_from_body(\$nasty);
+is($pos, 26, "got proper header-end offset");
+is($mycrlf, "\n\r", "got proper line terminator");
 my $test = $mail->as_string;
 is($test, $nasty, "Round trip that too");
 is(Email::Simple->new($mail->as_string)->as_string, $nasty, "... twice");
