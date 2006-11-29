@@ -53,12 +53,13 @@ sub new {
 
   my $headers = $class->_header_to_list($head_ref, $self->{mycrlf});
 
-  for my $header (@$headers) {
-    push @{ $self->{order} }, $header->[0];
-    push @{ $self->{head}{ $header->[0] } }, $header->[1];
-  }
-
-  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
+#  for my $header (@$headers) {
+#    push @{ $self->{order} }, $header->[0];
+#    push @{ $self->{head}{ $header->[0] } }, $header->[1];
+#  }
+#
+#  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
+  $self->{headers} = $headers;
 
   bless $self => $class;
 }
@@ -74,9 +75,9 @@ sub _header_to_list {
       # the previous header.
       next if !@headers;  # Well, that sucks.  We're continuing nothing?
 
-      $headers[-1][1] .= $headers[-1][1] ? " $_" : $_;
+      $headers[-1] .= $headers[-1] ? " $_" : $_;
     } else {
-      push @headers, [ $1, $2 ];
+      push @headers, $1, $2;
     }
   }
 
@@ -102,10 +103,12 @@ sub as_string {
   my ($self) = @_;
 
   my $header_str = '';
-  my @pairs      = $self->header_pairs;
 
-  while (my ($name, $value) = splice @pairs, 0, 2) {
-    $header_str .= $self->_header_as_string($name, $value);
+  my $headers = $self->{headers};
+
+  for (my $i = 0; $i < @$headers; $i += 2) {
+  # while (my ($name, $value) = splice @pairs, 0, 2) {
+    $header_str .= $self->_header_as_string(@$headers[ $i, $i+1 ]);
   }
 
   return $header_str;
@@ -153,7 +156,11 @@ particular order.
 =cut
 
 sub header_names {
-  values %{ $_[0]->{header_names} };
+  my $headers = $_[0]->{headers};
+
+  my %seen;
+  grep { ! $seen{ lc $_ }++ }
+  map  { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
 }
 
 =head2 header_pairs
@@ -166,14 +173,7 @@ they appear in the header.
 sub header_pairs {
   my ($self) = @_;
 
-  my @headers;
-  my %seen;
-
-  for my $header (@{ $self->{order} }) {
-    push @headers, ($header, $self->{head}{$header}[ $seen{$header}++ ]);
-  }
-
-  return @headers;
+  return @{ $self->{headers} };
 }
 
 =head2 header
@@ -188,13 +188,20 @@ named field does not appear in the header, this method returns false.
 
 sub header {
   my ($self, $field) = @_;
-  return
-    unless (exists $self->{header_names}->{ lc $field })
-    and $field = $self->{header_names}->{ lc $field };
 
-  return wantarray
-    ? @{ $self->{head}->{$field} }
-    : $self->{head}->{$field}->[0];
+  my $headers = $self->{headers};
+  my $lc_field = lc $field;
+
+  if (wantarray) {
+    return map  { @$headers[ $_ * 2 + 1] }
+           grep { lc $headers->[ $_ * 2 ] eq $lc_field }
+           0 .. int($#$headers / 2);
+  } else {
+    for (0 .. int($#$headers / 2)) {
+      return $headers->[ $_ * 2 + 1 ] if lc $headers->[ $_ * 2 ] eq $lc_field;
+    }
+    return;
+  }
 }
 
 =head2 header_set
@@ -217,26 +224,28 @@ sub header_set {
       unless $field =~ /^[\w-]+$/;
   }
 
-  if (!exists $self->{header_names}->{ lc $field }) {
-    $self->{header_names}->{ lc $field } = $field;
+  my $headers = $self->{headers};
 
-    # New fields are added to the end.
-    push @{ $self->{order} }, $field;
-  } else {
-    $field = $self->{header_names}->{ lc $field };
+  my $lc_field = lc $field;
+  my @indices = grep { lc $headers->[ $_ ] eq $lc_field }
+                map  { $_ * 2 } 0 .. int($#$headers / 2);
+
+  if (@indices > @data) {
+    my $overage = @indices - @data;
+    splice @{ $headers }, $_, 2 for reverse @indices[ -$overage, $#indices ];
+    pop @indices for (1 .. $overage);
+  } elsif (@data > @indices) {
+    my $underage = @data - @indices;
+    for (1 .. $underage) {
+      push @$headers, $field, undef; # temporary value
+      push @indices, $#$headers - 1;
+    }
   }
 
-  my @loci =
-    grep { lc $self->{order}[$_] eq lc $field } 0 .. $#{ $self->{order} };
-
-  if (@loci > @data) {
-    my $overage = @loci - @data;
-    splice @{ $self->{order} }, $_, 1 for reverse @loci[ -$overage, $#loci ];
-  } elsif (@data > @loci) {
-    push @{ $self->{order} }, ($field) x (@data - @loci);
+  for (0 .. $#indices) {
+    $headers->[ $indices[$_] + 1 ] = $data[ $_ ];
   }
 
-  $self->{head}->{$field} = [@data];
   return wantarray ? @data : $data[0];
 }
 

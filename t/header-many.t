@@ -63,7 +63,7 @@ is_deeply(
     Alpha => 'h1',
     Bravo => 'this header comes second',
     Alpha => 'h3',
-    Alpha => 'h4',
+    alpha => 'h4',
   ],
   "and we still get everything in order for header_pairs",
 );
@@ -105,7 +105,7 @@ is_deeply(
     Alpha => 'header one',
     Bravo => 'this header comes second',
     Gamma => 'gammalon',
-    Alpha => 'header omega',
+    alpha => 'header omega',
   ],
   "and re-adding to the previously third header puts it fourth",
 );
