@@ -38,15 +38,20 @@ Valid arguments are:
 
 =cut
 
+# We need to be able to:
+#   * get all values by lc name
+#   * produce all pairs, with case intact
+
 sub new {
   my ($class, $head, $arg) = @_;
 
   my $head_ref = ref $head ? $head : \$head;
 
-  my $self = {};
-  $self->{mycrlf} = $arg->{crlf} || "\n";
+  my $self = {
+    mycrlf => $arg->{crlf} || "\n",
+  };
 
-  my $headers = $class->_header_to_list($head_ref);
+  my $headers = $class->_header_to_list($head_ref, $self->{mycrlf});
 
   for my $header (@$headers) {
     push @{ $self->{order} }, $header->[0];
@@ -59,11 +64,11 @@ sub new {
 }
 
 sub _header_to_list {
-  my ($self, $head) = @_;
+  my ($self, $head, $mycrlf) = @_;
 
   my @headers;
 
-  for (split /$crlf/, $$head) {
+  for (split /$mycrlf/, $$head) {
     if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
       # This is a continuation line. We fold it onto the end of
       # the previous header.
