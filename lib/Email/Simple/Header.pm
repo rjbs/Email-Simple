@@ -69,7 +69,8 @@ sub _header_to_list {
 
   my @headers;
 
-  for (split /$mycrlf/, $$head) {
+  while ($$head =~ m/\G(.+?)$crlf/go) {
+    local $_ = $1;
     if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
       # This is a continuation line. We fold it onto the end of
       # the previous header.
