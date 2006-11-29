@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '1.998';
+$Email::Simple::VERSION = '1.997_01';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.

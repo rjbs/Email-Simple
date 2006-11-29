@@ -3,7 +3,7 @@ package Email::Simple::Header;
 use strict;
 use Carp ();
 
-$Email::Simple::Header::VERSION = '1.998';
+$Email::Simple::Header::VERSION = '1.997_01';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
 
