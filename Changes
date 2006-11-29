@@ -2,6 +2,7 @@ Revision history for Perl extension Email::Simple.
 
 1.997_01 2006-11-??
   - major refactoring of guts
+    If you run Email::MIME, you MUST be running Email::MIME 1.857 or better.
   - boldly moving forward with refactored headers and Email::Simple:::Header
   - greatly reduce memory footprint
   - add crlf method to allow other modules to avoid ->{mycrlf}
