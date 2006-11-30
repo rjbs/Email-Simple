@@ -3,7 +3,7 @@ package Email::Simple::Header;
 use strict;
 use Carp ();
 
-$Email::Simple::Header::VERSION = '1.997_01';
+$Email::Simple::Header::VERSION = '1.997_02';
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
 
@@ -47,18 +47,16 @@ sub new {
 
   my $head_ref = ref $head ? $head : \$head;
 
-  my $self = {
-    mycrlf => $arg->{crlf} || "\n",
-  };
+  my $self = { mycrlf => $arg->{crlf} || "\n", };
 
   my $headers = $class->_header_to_list($head_ref, $self->{mycrlf});
 
-#  for my $header (@$headers) {
-#    push @{ $self->{order} }, $header->[0];
-#    push @{ $self->{head}{ $header->[0] } }, $header->[1];
-#  }
-#
-#  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
+  #  for my $header (@$headers) {
+  #    push @{ $self->{order} }, $header->[0];
+  #    push @{ $self->{head}{ $header->[0] } }, $header->[1];
+  #  }
+  #
+  #  $self->{header_names} = { map { lc $_ => $_ } keys %{ $self->{head} } };
   $self->{headers} = $headers;
 
   bless $self => $class;
@@ -85,7 +83,6 @@ sub _header_to_list {
   return \@headers;
 }
 
-
 =head2 from_string
 
 =head2 as_string
@@ -108,8 +105,7 @@ sub as_string {
   my $headers = $self->{headers};
 
   for (my $i = 0; $i < @$headers; $i += 2) {
-  # while (my ($name, $value) = splice @pairs, 0, 2) {
-    $header_str .= $self->_header_as_string(@$headers[ $i, $i+1 ]);
+    $header_str .= $self->_header_as_string(@$headers[ $i, $i + 1 ]);
   }
 
   return $header_str;
@@ -160,8 +156,8 @@ sub header_names {
   my $headers = $_[0]->{headers};
 
   my %seen;
-  grep { ! $seen{ lc $_ }++ }
-  map  { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
+  grep  { !$seen{ lc $_ }++ }
+    map { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
 }
 
 =head2 header_pairs
@@ -190,13 +186,12 @@ named field does not appear in the header, this method returns false.
 sub header {
   my ($self, $field) = @_;
 
-  my $headers = $self->{headers};
+  my $headers  = $self->{headers};
   my $lc_field = lc $field;
 
   if (wantarray) {
-    return map  { @$headers[ $_ * 2 + 1] }
-           grep { lc $headers->[ $_ * 2 ] eq $lc_field }
-           0 .. int($#$headers / 2);
+    return map { @$headers[ $_ * 2 + 1 ] }
+      grep { lc $headers->[ $_ * 2 ] eq $lc_field } 0 .. int($#$headers / 2);
   } else {
     for (0 .. int($#$headers / 2)) {
       return $headers->[ $_ * 2 + 1 ] if lc $headers->[ $_ * 2 ] eq $lc_field;
@@ -228,23 +223,23 @@ sub header_set {
   my $headers = $self->{headers};
 
   my $lc_field = lc $field;
-  my @indices = grep { lc $headers->[ $_ ] eq $lc_field }
-                map  { $_ * 2 } 0 .. int($#$headers / 2);
+  my @indices = grep { lc $headers->[$_] eq $lc_field }
+    map { $_ * 2 } 0 .. int($#$headers / 2);
 
   if (@indices > @data) {
     my $overage = @indices - @data;
-    splice @{ $headers }, $_, 2 for reverse @indices[ -$overage, $#indices ];
+    splice @{$headers}, $_, 2 for reverse @indices[ -$overage, $#indices ];
     pop @indices for (1 .. $overage);
   } elsif (@data > @indices) {
     my $underage = @data - @indices;
     for (1 .. $underage) {
-      push @$headers, $field, undef; # temporary value
+      push @$headers, $field, undef;  # temporary value
       push @indices, $#$headers - 1;
     }
   }
 
   for (0 .. $#indices) {
-    $headers->[ $indices[$_] + 1 ] = $data[ $_ ];
+    $headers->[ $indices[$_] + 1 ] = $data[$_];
   }
 
   return wantarray ? @data : $data[0];
