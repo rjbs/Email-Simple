@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 35;
+use Test::More tests => 37;
 
 sub read_file { local $/; local *FH; open FH, shift or die $!; return <FH> }
 use_ok("Email::Simple");
@@ -37,6 +37,10 @@ for my $mail_text ($file_contents, \$file_contents) {
   my $hi = "Hi there!\n";
   $mail->body_set($hi);
   is($mail->body, $hi, "Body can be set properly");
+
+  my $bye = "Goodbye!\n";
+  $mail->body_set(\$bye);
+  is($mail->body, $bye, "Body can be set with a ref to a string, too");
 
   $mail->body_set($body);
   is(

@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 14;
 
 use_ok('Email::Simple');
 
@@ -31,7 +31,13 @@ is_deeply(
   "and we get everything in order for header_pairs",
 );
 
-$email->header_set(alpha => ('header one', 'header three'));
+my @rv = $email->header_set(alpha => ('header one', 'header three'));
+
+is_deeply(
+  \@rv,
+  [ 'header one', 'header three' ],
+  "header_set in list context returns all set values",
+);
 
 is_deeply(
   [ $email->header('alpha') ],
@@ -49,7 +55,8 @@ is_deeply(
   "and we still get everything in order for header_pairs",
 );
 
-$email->header_set(alpha => qw(h1 h3 h4));
+my $rv = $email->header_set(alpha => qw(h1 h3 h4));
+is($rv, 'h1', "header_set in scalar context returns first set header");
 
 is_deeply(
   [ $email->header('alpha') ],

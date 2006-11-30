@@ -13,6 +13,7 @@ t/header-case.t
 t/header-junk.t
 t/header-many.t
 t/header-names.t
+t/header-new.t
 t/header-pairs.t
 t/header-prepend.t
 t/long-msgid.t

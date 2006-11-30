@@ -109,14 +109,7 @@ exists primarily for internal consumption.
 
 sub header_obj {
   my ($self) = @_;
-  return $self->{header} if $self->{header};
-
-  if ($self->{head} and $self->{order} and $self->{header_names}) {
-    Carp::carp "Email::Simple subclass appears to have broken header behavior";
-    my $head = bless {} => 'Email::Simple::Header';
-    $head->{$_} = $self->{$_} for qw(head order header_names mycrlf);
-    return $self->{header} = $head;
-  }
+  return $self->{header};
 }
 
 # Probably needs to exist in perpetuity for modules released during the "__head

@@ -114,7 +114,7 @@ sub as_string {
 sub _header_as_string {
   my ($self, $field, $data) = @_;
 
-  # Ignore "empty" headers
+  # Ignore "empty" headers; this should not be allowed to happen!
   return '' unless defined $data;
 
   my $string = "$field: $data";
