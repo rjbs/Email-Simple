@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '1.997_01';
+$Email::Simple::VERSION = '1.997_02';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
@@ -17,17 +17,17 @@ Email::Simple - Simple parsing of RFC2822 message format and headers
 
 =head1 SYNOPSIS
 
-    my $email = Email::Simple->new($text);
+  my $email = Email::Simple->new($text);
 
-    my $from_header = $email->header("From");
-    my @received = $email->header("Received");
+  my $from_header = $email->header("From");
+  my @received = $email->header("Received");
 
-    $email->header_set("From", 'Simon Cozens <simon@cpan.org>');
+  $email->header_set("From", 'Simon Cozens <simon@cpan.org>');
 
-    my $old_body = $email->body;
-    $email->body_set("Hello world\nSimon");
+  my $old_body = $email->body;
+  $email->body_set("Hello world\nSimon");
 
-    print $email->as_string;
+  print $email->as_string;
 
 =head1 DESCRIPTION
 

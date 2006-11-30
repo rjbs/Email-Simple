@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+1.997_02 2006-11-??
+  - further refactoring of header parsing
+
 1.997_01 2006-11-??
   - major refactoring of guts
     If you run Email::MIME, you MUST be running Email::MIME 1.857 or better.
