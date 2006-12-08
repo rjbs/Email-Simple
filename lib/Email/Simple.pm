@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '1.997_02';
+$Email::Simple::VERSION = '1.998';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
@@ -245,6 +245,11 @@ consult RT issue 2478, L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
 This module is maintained by the Perl Email Project
 
 L<http://emailproject.perl.org/wiki/Email::Simple>
+
+=head1 AUTHORS
+
+Simon Cozens originally wrote Email::Simple in 2003.  Casey West took over
+maintenance in 2004, and Ricardo SIGNES took over maintenance in 2006.
 
 =head1 COPYRIGHT AND LICENSE
 
