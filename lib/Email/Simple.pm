@@ -68,7 +68,8 @@ sub new {
   $self->{body} = $text_ref;
 
   $self->header_obj_set(
-    Email::Simple::Header->new($head, { crlf => $self->crlf }));
+    Email::Simple::Header->new($head, { crlf => $self->crlf })
+  );
 
   return $self;
 }
