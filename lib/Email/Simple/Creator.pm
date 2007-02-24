@@ -2,18 +2,26 @@ package Email::Simple::Creator;
 use strict;
 
 use vars qw[$VERSION $CRLF];
-$VERSION = '1.41';
-$CRLF    = "\x0a\x0d";
+$VERSION = '1.420';
+
+sub _crlf {
+  "\x0a\x0d";
+}
 
 sub _date_header {
-    require Email::Date;
-    Email::Date::format_date();
+  require Email::Date;
+  Email::Date::format_date();
 }
 
 sub _add_to_header {
-    my ($class, $header, $key, $value) = @_;
-    return unless $value;
-    ${$header} .= join(": ", $key, $value) . $CRLF;
+  my ($class, $header, $key, $value) = @_;
+  $value = '' unless defined $value;
+  $$header .= "$key: $value" . $class->_crlf;
+}
+
+sub _finalize_header {
+  my ($class, $header) = @_;
+  $$header .= $class->_crlf;
 }
 
 package Email::Simple;
@@ -23,26 +31,32 @@ use vars qw[$CREATOR];
 $CREATOR = 'Email::Simple::Creator';
 
 sub create {
-    my ($class, %args) = @_;
+  my ($class, %args) = @_;
 
-    my @headers = @{ $args{header} || [] };
-    my $body    = $args{body} || '';
-    my $header  = '';
-    my %headers;
+  my $headers = $args{header} || [];
+  my $body    = $args{body} || '';
 
-    pop @headers if @headers % 2 == 1;
-    while ( my ($key, $value) = splice @headers, 0, 2 ) {
-        $headers{$key} = 1;
-        $CREATOR->_add_to_header(\$header, $key, $value);
-    }
+  my $empty   = q{};
+  my $header  = \$empty;
 
-    $CREATOR->_add_to_header(\$header,
-      Date => $CREATOR->_date_header
-    ) unless $headers{Date};
+  for my $idx (map { $_ * 2 } 0 .. @$headers / 2 - 1) {
+    my ($key, $value) = @$headers[ $idx, $idx + 1 ];
+    $CREATOR->_add_to_header($header, $key, $value);
+  }
 
-    my $email = $class->new($header);
-    $email->body_set($body . $email->{mycrlf});
-    return $email;
+  $CREATOR->_finalize_header($header);
+
+  my $email = $class->new($header);
+
+  $email->header_set(Date => $CREATOR->_date_header)
+    unless defined $email->header('Date');
+
+  # No reason to add a trailing CRLF if we have one already.
+  my $crlf = $email->crlf;
+  $body .= $crlf unless $crlf eq (substr $body, - length $crlf);
+  $email->body_set($body);
+
+  return $email;
 }
 
 1;
@@ -51,7 +65,7 @@ __END__
 
 =head1 NAME
 
-Email::Simple::Creator - Email::Simple constructor for starting anew.
+Email::Simple::Creator - Email::Simple constructor for starting anew
 
 =head1 SYNOPSIS
 
@@ -76,11 +90,9 @@ Email::Simple::Creator - Email::Simple constructor for starting anew.
 This software provides a constructor to L<Email::Simple|Email::Simple> for
 creating messages from scratch.
 
-=head2 Methods
+=head1 METHODS
 
-=over 5
-
-=item create
+=head2 create
 
   my $email = Email::Simple->create(header => [ @headers ], body => '...');
 
@@ -99,8 +111,6 @@ I<not> provided for you.
 The parameters passed are used to create an email message that is passed
 to C<< Email::Simple->new() >>. C<create()> returns the value returned
 by C<new()>. With skill, that's an C<Email::Simple> object.
-
-=back
 
 =head1 SEE ALSO
 
