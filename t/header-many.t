@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 use_ok('Email::Simple');
 
@@ -115,4 +115,28 @@ is_deeply(
     alpha => 'header omega',
   ],
   "and re-adding to the previously third header puts it fourth",
+);
+
+$email->header_set('Bravo');
+
+is_deeply(
+  [ $email->header_pairs ],
+  [
+    Alpha => 'header one',
+    Gamma => 'gammalon',
+    alpha => 'header omega',
+  ],
+  "Bravo header gets completely removed",
+);
+
+$email->header_set('Omega');
+
+is_deeply(
+  [ $email->header_pairs ],
+  [
+    Alpha => 'header one',
+    Gamma => 'gammalon',
+    alpha => 'header omega',
+  ],
+  "nothing weird happens when deleting absent headers",
 );

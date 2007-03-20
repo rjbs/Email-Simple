@@ -3,9 +3,10 @@ package Email::Simple::Header;
 use strict;
 use Carp ();
 
-$Email::Simple::Header::VERSION = '1.997_02';
+$Email::Simple::Header::VERSION = '1.999';
 
-my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
+# We are liberal in what we accept.
+my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
 
 =head1 NAME
 
@@ -228,7 +229,7 @@ sub header_set {
 
   if (@indices > @data) {
     my $overage = @indices - @data;
-    splice @{$headers}, $_, 2 for reverse @indices[ -$overage, $#indices ];
+    splice @{$headers}, $_, 2 for reverse @indices[ -$overage .. -1 ];
     pop @indices for (1 .. $overage);
   } elsif (@data > @indices) {
     my $underage = @data - @indices;

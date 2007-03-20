@@ -16,6 +16,7 @@ t/header-names.t
 t/header-new.t
 t/header-pairs.t
 t/header-prepend.t
+t/header-space.t
 t/long-msgid.t
 t/many-repeats.t
 t/no-body.t

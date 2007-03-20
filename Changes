@@ -1,14 +1,22 @@
 Revision history for Perl extension Email::Simple.
 
-1.998    2006-12-??
-  - major refactoring of guts
-    If you run Email::MIME, you MUST be running Email::MIME 1.857 or better.
-  - require Email::MIME 1.857 in Makefile.PL only if an older version is
-    already installed
-  - boldly moving forward with refactored headers and Email::Simple:::Header
-  - greatly reduce memory footprint
-  - add crlf method to allow other modules to avoid ->{mycrlf}
-  - fix broken header-junk test
+1.999     2007-03-20
+          fix bug 25496: deletion of headers affected the wrong range,
+            sometimes deleting too many headers -- thanks, Nicholas Oxhoej!
+          fix bug 24922: errant space in last header of CRLF-delim email
+            thanks, Barry Downes and Alex Vandiver
+
+1.998     2007-02-07
+          MAJOR REFACTORING OF GUTS
+          If you run Email::MIME, you MUST be running Email::MIME 1.857 or
+            better.
+          require Email::MIME 1.857 in Makefile.PL only if an older
+            version is already installed
+          boldly moving forward with refactored headers and
+            Email::Simple:::Header
+          greatly reduce memory footprint
+          add crlf method to allow other modules to avoid ->{mycrlf}
+          fix broken header-junk test
 
 1.996    2006-11-27
   - do not wrap Content-Type field; it can cause Outlook to go nuts
@@ -94,4 +102,3 @@ Revision history for Perl extension Email::Simple.
 	- original version; created by h2xs 1.22 with options
 		-b 5.5.3 -AX -n Email::Simple
 
-Full details are available at http://cvs.simon-cozens.org/
