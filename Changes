@@ -1,24 +1,27 @@
-1.420    2007-02-23
-         reduce use of unneeded variables during creation
-         fix bugs that skipped creating headers with false values
-         use standard crlf for creating mail
-           A changelog entry below indicates that this was not the goal, but
-           all the code seems as if it was meant to do this.  There was a bug
-           in the logic, and there were no tests.
+1.421   2007-03-22
+        packaging improvements
 
-1.41     2006-07-03
-         don't use no_plan in test; it breaks under old Test::More
-         (applied by RJBS, thanks to LTHEGLER)
+1.420   2007-02-23
+        reduce use of unneeded variables during creation
+        fix bugs that skipped creating headers with false values
+        use standard crlf for creating mail
+          A changelog entry below indicates that this was not the goal, but
+          all the code seems as if it was meant to do this.  There was a bug
+          in the logic, and there were no tests.
 
-1.4      2004-07-25
-         use Email::Date
+1.41    2006-07-03
+        don't use no_plan in test; it breaks under old Test::More
+        (applied by RJBS, thanks to LTHEGLER)
 
-1.3      2004-07-05
-         Create a message using its local crlf (Casey West).
-         Include timezone info in the Date header (Steffen Goeldner).
+1.4     2004-07-25
+        use Email::Date
 
-1.2      2004-07-05
-         Handle undefined values in the header list properly.
+1.3     2004-07-05
+        Create a message using its local crlf (Casey West).
+        Include timezone info in the Date header (Steffen Goeldner).
 
-1.1      ????-??-??
-         Initial Version
+1.2     2004-07-05
+        Handle undefined values in the header list properly.
+
+1.1     ????-??-??
+        Initial Version
