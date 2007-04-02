@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+2.000     2007-04-01
+          fix tests to avoid requiring 5.6
+
 1.999     2007-03-20
           fix bug 25496: deletion of headers affected the wrong range,
             sometimes deleting too many headers -- thanks, Nicholas Oxhoej!

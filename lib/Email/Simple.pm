@@ -1,6 +1,6 @@
 package Email::Simple;
 
-use 5.00503;
+use 5.00503; # why? -- rjbs, 2007-04-01
 use strict;
 use Carp ();
 
