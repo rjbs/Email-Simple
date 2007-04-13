@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '1.999';
+$Email::Simple::VERSION = '2.000';
 $Email::Simple::GROUCHY = 0;
 
 my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
@@ -82,8 +82,8 @@ sub _split_head_from_body {
   my ($self, $text_ref) = @_;
 
   # For body/header division, see RFC 2822, section 2.1
-  if ($$text_ref =~ /(.*?($crlf))\2/gsm) {
-    return (pos($$text_ref), $2);
+  if ($$text_ref =~ /(?:.*?($crlf))\1/gsm) {
+    return (pos($$text_ref), $1);
   } else {
 
     # The body is, of course, optional.
