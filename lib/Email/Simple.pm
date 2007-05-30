@@ -6,14 +6,15 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '2.000';
+$Email::Simple::VERSION = '1.999_9';
 $Email::Simple::GROUCHY = 0;
 
-my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;  # We are liberal in what we accept.
+# We are liberal in what we accept.
+sub __crlf_re { qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; }
 
 =head1 NAME
 
-Email::Simple - Simple parsing of RFC2822 message format and headers
+Email::Simple - simple parsing of RFC2822 message format and headers
 
 =head1 SYNOPSIS
 
@@ -41,15 +42,26 @@ external dependencies, and correct.
 
 =head2 new
 
-Parse an email from a scalar containing an RFC2822 formatted message,
-and return an object.
+  my $email = Email::Simple->new($message, \%arg);
+
+This method parses an email from a scalar containing an RFC2822 formatted
+message, and return an object.  C<$message> may be a reference to a message
+string, in which case the string will be altered in place.  This can result in
+significant memory savings.
+
+Valid arguments are:
+
+  header_class - the class used to create new header objects
+                 (defaults to the result of the default_header_class method)
+                 The named module is not 'require'-ed by Email::Simple!
 
 =cut
 
 sub new {
-  my ($class, $text) = @_;
+  my ($class, $text, $arg) = @_;
+  $arg ||= {};
 
-  Carp::croak 'Unable to parse undefined message' if !defined $text;
+  Carp::croak 'Unable to parse undefined message' if ! defined $text;
 
   my $text_ref = ref $text ? $text : \$text;
 
@@ -66,10 +78,12 @@ sub new {
     $text_ref = \'';
   }
 
-  $self->{body} = $text_ref;
+  $self->body_set($text_ref);
+
+  my $header_class = $arg->{header_class} || $self->default_header_class;
 
   $self->header_obj_set(
-    Email::Simple::Header->new($head, { crlf => $self->crlf })
+    $header_class->new(\$head, { crlf => $self->crlf })
   );
 
   return $self;
@@ -82,6 +96,8 @@ sub _split_head_from_body {
   my ($self, $text_ref) = @_;
 
   # For body/header division, see RFC 2822, section 2.1
+  my $crlf = $self->__crlf_re;
+
   if ($$text_ref =~ /(?:.*?($crlf))\1/gsm) {
     return (pos($$text_ref), $1);
   } else {
@@ -95,19 +111,10 @@ sub _split_head_from_body {
 
   my $header = $email->header_obj;
 
-This method returns the object representing the email's header, and at present
-exists primarily for internal consumption.
+This method returns the object representing the email's header.  For the
+interface for this object, see L<Email::Simple::Header>.
 
 =cut
-
-# Header fields are lines composed of a field name, followed by a colon (":"),
-# followed by a field body, and terminated by CRLF.  A field name MUST be
-# composed of printable US-ASCII characters (i.e., characters that have values
-# between 33 and 126, inclusive), except colon.  A field body may be composed
-# of any US-ASCII characters, except for CR and LF.
-
-# However, a field body may contain CRLF when used in header "folding" and
-# "unfolding" as described in section 2.2.3.
 
 sub header_obj {
   my ($self) = @_;
@@ -141,20 +148,12 @@ sub header_obj_set {
 In list context, this returns every value for the named header.  In scalar
 context, it returns the I<first> value for the named header.
 
-=cut
-
-sub header { $_[0]->header_obj->header($_[1]); }
-
 =head2 header_set
 
     $email->header_set($field, $line1, $line2, ...);
 
 Sets the header to contain the given data. If you pass multiple lines
 in, you get multiple headers, and order is retained.
-
-=cut
-
-sub header_set { (shift)->header_obj->header_set(@_); }
 
 =head2 header_names
 
@@ -167,11 +166,6 @@ guaranteed to get the headers in any order at all.
 
 For backwards compatibility, this method can also be called as B<headers>.
 
-=cut
-
-sub header_names { $_[0]->header_obj->header_names }
-BEGIN { *headers = \&header_names; }
-
 =head2 header_pairs
 
   my @headers = $email->header_pairs;
@@ -182,7 +176,13 @@ value following it is the header value.
 
 =cut
 
-sub header_pairs { $_[0]->header_obj->header_pairs }
+BEGIN {
+  no strict 'refs';
+  for my $method (qw(header header_set header_names header_pairs)) {
+    *$method = sub { (shift)->header_obj->$method(@_) };
+  }
+  *headers = \&header_names;
+}
 
 =head2 body
 
@@ -227,6 +227,15 @@ only.
 =cut
 
 sub crlf { $_[0]->{mycrlf} }
+
+=head2 default_header_class
+
+This returns the class used, by default, for header objects, and is provided
+for subclassing.  The default default is Email::Simple::Header.
+
+=cut
+
+sub default_header_class { 'Email::Simple::Header' }
 
 1;
 

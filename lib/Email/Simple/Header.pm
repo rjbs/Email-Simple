@@ -3,10 +3,9 @@ package Email::Simple::Header;
 use strict;
 use Carp ();
 
-$Email::Simple::Header::VERSION = '1.999';
+require Email::Simple;
 
-# We are liberal in what we accept.
-my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
+$Email::Simple::Header::VERSION = '1.999_9';
 
 =head1 NAME
 
@@ -31,7 +30,7 @@ minimal interface, and is mostly for private consumption at the moment.
   my $header = Email::Simple::Header->new($head, \%arg);
 
 C<$head> is a string containing a valid email header, or a reference to such a
-string.
+string.  If a reference is passed in, don't expect that it won't be altered.
 
 Valid arguments are:
 
@@ -68,6 +67,8 @@ sub _header_to_list {
 
   my @headers;
 
+  my $crlf = Email::Simple->__crlf_re;
+
   while ($$head =~ m/\G(.+?)$crlf/go) {
     local $_ = $1;
     if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
@@ -84,11 +85,16 @@ sub _header_to_list {
   return \@headers;
 }
 
-=head2 from_string
-
 =head2 as_string
 
-This returns the stringified header.
+  my $string = $header->as_string(\%arg);
+
+This returns a stringified version of the header.
+
+Valid arguments:
+
+  fold_at     - where to fold headers (see the fold method)
+  fold_indent - how to indent folded headers (see the fold method)
 
 =cut
 
@@ -99,51 +105,27 @@ This returns the stringified header.
 # kept in blocks prepended to the message.
 
 sub as_string {
-  my ($self) = @_;
+  my ($self, $arg) = @_;
+  $arg ||= {};
 
   my $header_str = '';
 
   my $headers = $self->{headers};
 
+  my $fold_arg = {
+    at     => (exists $arg->{fold_at} ? $arg->{fold_at} : $self->default_fold_at),
+    indent => (exists $arg->{fold_indent} ? $arg->{fold_indent} : $self->default_fold_indent),
+  };
+
   for (my $i = 0; $i < @$headers; $i += 2) {
-    $header_str .= $self->_header_as_string(@$headers[ $i, $i + 1 ]);
+    my $header = "$headers->[$i]: $headers->[$i + 1]";
+
+    $header_str .= lc $headers->[$i] eq 'content-type'
+                 ? $header . $self->crlf
+                 : $self->fold($header, $fold_arg);
   }
 
   return $header_str;
-}
-
-sub _header_as_string {
-  my ($self, $field, $data) = @_;
-
-  # Ignore "empty" headers; this should not be allowed to happen!
-  return '' unless defined $data;
-
-  my $string = "$field: $data";
-
-  return ((length $string > 78) and (lc $field ne 'content-type'))
-    ? $self->_fold($string)
-    : ($string . $self->crlf);
-}
-
-sub _fold {
-  my $self = shift;
-  my $line = shift;
-
-  # We know it will not contain any new lines at present
-  my $folded = "";
-  while ($line) {
-    $line =~ s/^\s+//;
-    if ($line =~ s/^(.{0,77})(\s|\z)//) {
-      $folded .= $1 . $self->crlf;
-      $folded .= " " if $line;
-    } else {
-
-      # Basically nothing we can do. :(
-      $folded .= $line . $self->crlf;
-      last;
-    }
-  }
-  return $folded;
 }
 
 =head2 header_names
@@ -210,6 +192,15 @@ values set in place.  Additional headers are added at the end.
 
 =cut
 
+# Header fields are lines composed of a field name, followed by a colon (":"),
+# followed by a field body, and terminated by CRLF.  A field name MUST be
+# composed of printable US-ASCII characters (i.e., characters that have values
+# between 33 and 126, inclusive), except colon.  A field body may be composed
+# of any US-ASCII characters, except for CR and LF.
+
+# However, a field body may contain CRLF when used in header "folding" and
+# "unfolding" as described in section 2.2.3.
+
 sub header_set {
   my ($self, $field, @data) = @_;
 
@@ -254,9 +245,72 @@ This method returns the newline string used in the header.
 
 sub crlf { $_[0]->{mycrlf} }
 
-1;
+=head2 fold
 
-__END__
+  my $folded = $header->fold($line, \%arg);
+
+Given a header string, this method returns a folded version, if the string is
+long enough to warrant folding.
+
+Valid arguments are:
+
+  at      - fold lines to be no longer than this length, if possible
+            if false, never fold headers
+            (defaults to the result of the default_fold_at method)
+  indent  - indent lines with this string
+            (defaults to the result of the default_fold_indent method)
+
+=cut
+
+sub fold {
+  my ($self, $line, $arg) = @_;
+  $arg ||= {};
+
+  $arg->{at} = $self->default_fold_at unless exists $arg->{at};
+
+  return $line . $self->crlf unless $arg->{at} and $arg->{at} > 0;
+
+  my $limit  = ($arg->{at} || $self->default_fold_at) - 1;
+
+  return $line . $self->crlf if length $line <= $limit;
+
+  $arg->{indent} = $self->default_fold_indent unless exists $arg->{indent};
+
+  my $indent = $arg->{indent} || $self->default_fold_indent;
+
+  # We know it will not contain any new lines at present
+  my $folded = "";
+  while ($line) {
+    if ($line =~ s/^(.{0,$limit})(\s|\z)//) {
+      $folded .= $1 . $self->crlf;
+      $folded .= $indent if $line;
+    } else {
+      # Basically nothing we can do. :(
+      $folded .= $line . $self->crlf;
+      last;
+    }
+  }
+
+  return $folded;
+}
+
+=head2 default_fold_at
+
+This method (provided for subclassing) returns the default length at which to
+try to fold header lines.  The default default is 78.
+
+=cut
+
+sub default_fold_at { 78 }
+
+=head2 default_fold_indent
+
+This method (provided for subclassing) returns the default string used to
+indent folded headers.  The default default is a single space.
+
+=cut
+
+sub default_fold_indent { " " }
 
 =head1 PERL EMAIL PROJECT
 
@@ -266,6 +320,8 @@ L<http://emailproject.perl.org/wiki/Email::Simple::Header>
 
 =head1 COPYRIGHT AND LICENSE
 
+Copyright 2006-2007 by Ricardo SIGNES
+
 Copyright 2004 by Casey West
 
 Copyright 2003 by Simon Cozens
@@ -274,3 +330,5 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+
+1;

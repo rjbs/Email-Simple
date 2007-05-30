@@ -2,10 +2,10 @@ package Email::Simple::Headers;
 use strict;
 
 use vars qw[$VERSION];
-$VERSION = '1.970';
+$VERSION = '1.971';
 
 use Carp ();
-Carp::carp 'Email::Simple::Headers is deprecated; using it does nothing'
+Carp::cluck 'Email::Simple::Headers is deprecated; using it does nothing'
   unless $ENV{HARNESS_ACTIVE};
 
 1;
@@ -14,28 +14,16 @@ __END__
 
 =head1 NAME
 
-Email::Simple::Headers - a deprecated module that does nothing!
+Email::Simple::Headers - a deprecated module that you shouldn't use!
 
-=head1 SYNOPSIS
-
-  use Email::Simple;
-  # use Email::Simple::Headers; # no longer needed as of 2006-08-17
-  
-  my $email = Email::Simple->new($string);
-  
-  print $email->header($_), "\n" for $email->headers;
-  
 =head1 DESCRIPTION
 
 This module used to provide the method C<headers> for Email::Simple objects.
-That method is now part of the Email::Simple module.
+That method is now part of the Email::Simple module.  Loading this module will
+emit a verbose diagnostic warning using C<Carp::cluck>.
 
 =head1 SEE ALSO
 
-L<Email::Simple>
-
-=head1 AUTHOR
-
-Casey West, <F<casey@geeknest.com>>
+L<Email::Simple>, L<Email::Simple::Header>
 
 =cut

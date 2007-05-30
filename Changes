@@ -1,6 +1,6 @@
 Revision history for Perl extension Email::Simple.
 
-2.000     2007-04-??
+2.000     2007-05-29
           huge improvement to speed of bodyless message parsing
             pointed out by Dan Dascalescu; thanks!
           fix tests to avoid requiring 5.6
