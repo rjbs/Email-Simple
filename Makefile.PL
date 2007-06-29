@@ -1,6 +1,8 @@
 use strict;
 use ExtUtils::MakeMaker;
 
+use 5.00503;
+
 # This is so stupid!  We need to make sure that Email::MIME, a downstream
 # module, is running a version that doesn't screw around with the guts of
 # Email::Simple.
