@@ -52,7 +52,6 @@ significant memory savings.
 Valid arguments are:
 
   header_class - the class used to create new header objects
-                 (defaults to the result of the default_header_class method)
                  The named module is not 'require'-ed by Email::Simple!
 
 =cut
@@ -80,7 +79,7 @@ sub new {
 
   $self->body_set($text_ref);
 
-  my $header_class = $arg->{header_class} || $self->default_header_class;
+  my $header_class = $arg->{header_class} || $self->_default_header_class;
 
   $self->header_obj_set(
     $header_class->new(\$head, { crlf => $self->crlf })
@@ -228,14 +227,14 @@ only.
 
 sub crlf { $_[0]->{mycrlf} }
 
-=head2 default_header_class
+#=head2 default_header_class
+#
+#This returns the class used, by default, for header objects, and is provided
+#for subclassing.  The default default is Email::Simple::Header.
+#
+#=cut
 
-This returns the class used, by default, for header objects, and is provided
-for subclassing.  The default default is Email::Simple::Header.
-
-=cut
-
-sub default_header_class { 'Email::Simple::Header' }
+sub _default_header_class { 'Email::Simple::Header' }
 
 1;
 
@@ -243,12 +242,12 @@ __END__
 
 =head1 CAVEATS
 
-Email::Simple handles only RFC2822 formatted messages.  This means you
-cannot expect it to cope well as the only parser between you and the
-outside world, say for example when writing a mail filter for
-invocation from a .forward file (for this we recommend you use
-L<Email::Filter> anyway).  For more information on this issue please
-consult RT issue 2478, L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
+Email::Simple handles only RFC2822 formatted messages.  This means you cannot
+expect it to cope well as the only parser between you and the outside world,
+say for example when writing a mail filter for invocation from a .forward file
+(for this we recommend you use L<Email::Filter> anyway).  For more information
+on this issue please consult RT issue 2478,
+L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
 
 =head1 PERL EMAIL PROJECT
 
