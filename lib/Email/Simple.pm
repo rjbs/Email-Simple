@@ -49,6 +49,9 @@ message, and return an object.  C<$message> may be a reference to a message
 string, in which case the string will be altered in place.  This can result in
 significant memory savings.
 
+If you want to create a message from scratch, you should use the plugin
+L<Email::Simple::Creator>.
+
 Valid arguments are:
 
   header_class - the class used to create new header objects
