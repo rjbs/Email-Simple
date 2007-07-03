@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '1.999_9';
+$Email::Simple::VERSION = '2.000';
 $Email::Simple::GROUCHY = 0;
 
 # We are liberal in what we accept.

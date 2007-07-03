@@ -5,7 +5,7 @@ use Carp ();
 
 require Email::Simple;
 
-$Email::Simple::Header::VERSION = '1.999_9';
+$Email::Simple::Header::VERSION = '2.000';
 
 =head1 NAME
 
@@ -91,11 +91,6 @@ sub _header_to_list {
 
 This returns a stringified version of the header.
 
-Valid arguments:
-
-  fold_at     - where to fold headers (see the fold method)
-  fold_indent - how to indent folded headers (see the fold method)
-
 =cut
 
 # RFC 2822, 3.6:
@@ -113,8 +108,10 @@ sub as_string {
   my $headers = $self->{headers};
 
   my $fold_arg = {
-    at     => (exists $arg->{fold_at} ? $arg->{fold_at} : $self->default_fold_at),
-    indent => (exists $arg->{fold_indent} ? $arg->{fold_indent} : $self->default_fold_indent),
+    # at     => (exists $arg->{fold_at} ? $arg->{fold_at} : $self->default_fold_at),
+    # indent => (exists $arg->{fold_indent} ? $arg->{fold_indent} : $self->default_fold_indent),
+    at     => $self->_default_fold_at,
+    indent => $self->_default_fold_indent,
   };
 
   for (my $i = 0; $i < @$headers; $i += 2) {
@@ -122,7 +119,7 @@ sub as_string {
 
     $header_str .= lc $headers->[$i] eq 'content-type'
                  ? $header . $self->crlf
-                 : $self->fold($header, $fold_arg);
+                 : $self->_fold($header, $fold_arg);
   }
 
   return $header_str;
@@ -245,38 +242,36 @@ This method returns the newline string used in the header.
 
 sub crlf { $_[0]->{mycrlf} }
 
-=head2 fold
+# =head2 fold
+# 
+#   my $folded = $header->fold($line, \%arg);
+# 
+# Given a header string, this method returns a folded version, if the string is
+# long enough to warrant folding.  This method is used internally.
+# 
+# Valid arguments are:
+# 
+#   at      - fold lines to be no longer than this length, if possible
+#             if given and false, never fold headers
+#   indent  - indent lines with this string
+# 
+# =cut
 
-  my $folded = $header->fold($line, \%arg);
-
-Given a header string, this method returns a folded version, if the string is
-long enough to warrant folding.
-
-Valid arguments are:
-
-  at      - fold lines to be no longer than this length, if possible
-            if false, never fold headers
-            (defaults to the result of the default_fold_at method)
-  indent  - indent lines with this string
-            (defaults to the result of the default_fold_indent method)
-
-=cut
-
-sub fold {
+sub _fold {
   my ($self, $line, $arg) = @_;
   $arg ||= {};
 
-  $arg->{at} = $self->default_fold_at unless exists $arg->{at};
+  $arg->{at} = $self->_default_fold_at unless exists $arg->{at};
 
   return $line . $self->crlf unless $arg->{at} and $arg->{at} > 0;
 
-  my $limit  = ($arg->{at} || $self->default_fold_at) - 1;
+  my $limit  = ($arg->{at} || $self->_default_fold_at) - 1;
 
   return $line . $self->crlf if length $line <= $limit;
 
-  $arg->{indent} = $self->default_fold_indent unless exists $arg->{indent};
+  $arg->{indent} = $self->_default_fold_indent unless exists $arg->{indent};
 
-  my $indent = $arg->{indent} || $self->default_fold_indent;
+  my $indent = $arg->{indent} || $self->_default_fold_indent;
 
   # We know it will not contain any new lines at present
   my $folded = "";
@@ -294,23 +289,23 @@ sub fold {
   return $folded;
 }
 
-=head2 default_fold_at
+# =head2 default_fold_at
+# 
+# This method (provided for subclassing) returns the default length at which to
+# try to fold header lines.  The default default is 78.
+# 
+# =cut
 
-This method (provided for subclassing) returns the default length at which to
-try to fold header lines.  The default default is 78.
+sub _default_fold_at { 78 }
 
-=cut
+# =head2 default_fold_indent
+# 
+# This method (provided for subclassing) returns the default string used to
+# indent folded headers.  The default default is a single space.
+# 
+# =cut
 
-sub default_fold_at { 78 }
-
-=head2 default_fold_indent
-
-This method (provided for subclassing) returns the default string used to
-indent folded headers.  The default default is a single space.
-
-=cut
-
-sub default_fold_indent { " " }
+sub _default_fold_indent { " " }
 
 =head1 PERL EMAIL PROJECT
 
