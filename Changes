@@ -1,5 +1,6 @@
 
 1.421_01  2007-03-22
+          fixed header: why was it creating LFCR?
           normalize line endings to CRLF in body
           packaging improvements
 

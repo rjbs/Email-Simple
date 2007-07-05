@@ -5,7 +5,7 @@ use vars qw[$VERSION $CRLF];
 $VERSION = '1.421_01';
 
 sub _crlf {
-  "\x0a\x0d";
+  "\x0d\x0a";
 }
 
 sub _date_header {
@@ -51,7 +51,7 @@ sub create {
   $email->header_set(Date => $CREATOR->_date_header)
     unless defined $email->header('Date');
 
-  $body = join $CREATOR->_crlf, split /\x0a\x0d|\x0a|\x0d/, $body;
+  $body = join $CREATOR->_crlf, split /\x0d\x0a|\x0a|\x0d/, $body;
 
   # No reason to add a trailing CRLF if we have one already.
   my $crlf = $email->crlf;
