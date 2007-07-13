@@ -2,7 +2,7 @@ package Email::Simple::Creator;
 use strict;
 
 use vars qw[$VERSION $CRLF];
-$VERSION = '1.421_01';
+$VERSION = '1.422';
 
 sub _crlf {
   "\x0d\x0a";
@@ -51,7 +51,7 @@ sub create {
   $email->header_set(Date => $CREATOR->_date_header)
     unless defined $email->header('Date');
 
-  $body = join $CREATOR->_crlf, split /\x0d\x0a|\x0a|\x0d/, $body;
+  $body = join $CREATOR->_crlf, split /\x0d\x0a|\x0a\x0d|\x0a|\x0d/, $body;
 
   # No reason to add a trailing CRLF if we have one already.
   my $crlf = $email->crlf;
@@ -67,7 +67,7 @@ __END__
 
 =head1 NAME
 
-Email::Simple::Creator - Email::Simple constructor for starting anew
+Email::Simple::Creator - build an Email::Simple object from scratch
 
 =head1 SYNOPSIS
 
@@ -98,35 +98,33 @@ creating messages from scratch.
 
   my $email = Email::Simple->create(header => [ @headers ], body => '...');
 
-This method is a constructor that creates an C<Email::Simple> object
+This method is a constructor that creates an Email::Simple object
 from a set of named parameters. The C<header> parameter's value is a
 list reference containing a set of headers to be created. The C<body>
 parameter's value is a scalar value holding the contents of the message
-body.
+body.  Line endings in the body will normalized to CRLF.
 
-If no C<Date> header is specified, one will be provided for you based on
-the C<gmtime()> of the local machine. This is because the C<Date> field
-is a required header and is a pain in the neck to create manually for
-every message. The C<From> field is also a required header, but it is
-I<not> provided for you.
+If no C<Date> header is specified, one will be provided for you based on the
+C<gmtime> of the local machine. This is because the C<Date> field is a required
+header and is a pain in the neck to create manually for every message. The
+C<From> field is also a required header, but it is I<not> provided for you.
 
-The parameters passed are used to create an email message that is passed
-to C<< Email::Simple->new() >>. C<create()> returns the value returned
-by C<new()>. With skill, that's an C<Email::Simple> object.
+=head1 PERL EMAIL PROJECT
 
-=head1 SEE ALSO
+This module is maintained by the Perl Email Project
 
-L<Email::Simple>,
-L<perl>.
+L<http://emailproject.perl.org/wiki/Email::Simple::Creator>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Casey West, <F<casey@geeknest.com>>.
+Casey West originally wrote Email::Simple::Creator in 2004.  Ricardo SIGNES
+took over maintenance in 2006.
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-  Copyright (c) 2004 Casey West.  All rights reserved.
-  This module is free software; you can redistribute it and/or modify it
-  under the same terms as Perl itself.
+Copyright (c) 2004 Casey West.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
