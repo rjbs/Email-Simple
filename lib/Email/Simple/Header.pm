@@ -34,7 +34,7 @@ string.  If a reference is passed in, don't expect that it won't be altered.
 
 Valid arguments are:
 
-  crlf - the header's newline; defaults to "\n"
+  crlf - the header's newline; defaults to CRLF
 
 =cut
 
@@ -47,7 +47,7 @@ sub new {
 
   my $head_ref = ref $head ? $head : \$head;
 
-  my $self = { mycrlf => $arg->{crlf} || "\n", };
+  my $self = { mycrlf => $arg->{crlf} || "\x0d\x0a", };
 
   my $headers = $class->_header_to_list($head_ref, $self->{mycrlf});
 

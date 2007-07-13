@@ -4,6 +4,7 @@ Revision history for Perl extension Email::Simple.
           huge improvement to speed of bodyless message parsing
             pointed out by Dan Dascalescu; thanks!
           more documentation of header class
+          new Header crlf defaults to real CRLF
           fix tests to avoid requiring 5.6
 
 1.999     2007-03-20
