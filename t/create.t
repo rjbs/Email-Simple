@@ -21,7 +21,7 @@ sub tested_email {
   
   is(
     sprintf("%03u %03u", map { ord } @last_two),
-    '010 013',
+    '013 010',
     'stringified message ends with std CRLF'
   );
 
@@ -66,7 +66,7 @@ This is a multi-
 END_MESSAGE
 
   my $string = $email->as_string;
-  $string  =~ s/\x0a\x0d/\n/gsm;
+  $string  =~ s/\x0d\x0a/\n/gsm;
 
   is(
     $string,
@@ -104,7 +104,7 @@ The body is uninteresting.
 END_MESSAGE
 
   my $string = $email->as_string;
-  $string  =~ s/\x0a\x0d/\n/gsm;
+  $string  =~ s/\x0d\x0a/\n/gsm;
 
   is(
     $string,
