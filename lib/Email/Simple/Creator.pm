@@ -33,7 +33,10 @@ $CREATOR = 'Email::Simple::Creator';
 sub create {
   my ($class, %args) = @_;
 
-  my $headers = $args{header} || [];
+  # We default it in here as well as below because by having it here, then we
+  # know that if there are no other headers, we'll get the proper CRLF.
+  # Otherwise, we get a message with incorrect CRLF. -- rjbs, 2007-07-13
+  my $headers = $args{header} || [ Date => $CREATOR->_date_header ];
   my $body    = $args{body} || '';
 
   my $empty   = q{};
@@ -51,11 +54,9 @@ sub create {
   $email->header_set(Date => $CREATOR->_date_header)
     unless defined $email->header('Date');
 
-  $body = join $CREATOR->_crlf, split /\x0d\x0a|\x0a\x0d|\x0a|\x0d/, $body;
+  $body = (join $CREATOR->_crlf, split /\x0d\x0a|\x0a\x0d|\x0a|\x0d/, $body)
+        . $CREATOR->_crlf;
 
-  # No reason to add a trailing CRLF if we have one already.
-  my $crlf = $email->crlf;
-  $body .= $crlf unless $crlf eq (substr $body, - length $crlf);
   $email->body_set($body);
 
   return $email;

@@ -1,16 +1,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 25;
 
 use_ok 'Email::Simple';
 use_ok 'Email::Simple::Creator';
 
 sub tested_email {
-  my (%args) = @_;
+  my ($name, %args) = @_;
 
   my $email = Email::Simple->create(%args);
-  isa_ok $email, 'Email::Simple';
+  isa_ok $email, 'Email::Simple', "$name message";
 
   my $string = $email->as_string;
 
@@ -22,14 +22,35 @@ sub tested_email {
   is(
     sprintf("%03u %03u", map { ord } @last_two),
     '013 010',
-    'stringified message ends with std CRLF'
+    "$name: stringified message ends with std CRLF"
+  );
+
+  unlike(
+    $email->as_string,
+    qr/(?<!\x0d)\x0a/,
+    "$name: message has no LF that aren't preceded by CR",
   );
 
   return $email;
 }
 
+{
+  my $body = "This body uses\x0d"
+           . "LF only, and not\x0d"
+           . "CRLF like it might ought to do.";
+
+  tested_email(crlf =>
+    body   => $body,
+    header => [
+      Subject => 'all tests and no code make rjbs something something',
+      From    => 'jack',
+      To      => 'sissy',
+    ],
+  );
+}
+
 { # should get an automatic date header
-  my $email = tested_email(
+  my $email = tested_email(auto_date =>
     header => [
       To => 'you',
     ],
@@ -43,8 +64,27 @@ sub tested_email {
   );
 }
 
+{ # who needs args?  (why is this legal? who knows -- rjbs, 2007-07-13)
+  my $email = tested_email('argless');
+
+  like(
+    $email->header('date'),
+    qr/^[A-Z][a-z]{2},/, # lame -- rjbs, 2007-02-23
+    "we got an auto-generated date header starting with a DOW",
+  );
+}
+
+{ # no need to add CRLF if it's there
+  my $email = tested_email(has_crlf =>
+    header => [
+      To => 'you',
+    ],
+    body => "test test\x0d\x0a",
+  );
+}
+
 { # no date header, we provided one
-  my $email = tested_email(
+  my $email = tested_email(has_date =>
     header => [
       Date       => 'testing',
       'X-Header' => 'one',
@@ -76,7 +116,7 @@ END_MESSAGE
 }
 
 { # a few headers with false values
-  my $email = tested_email(
+  my $email = tested_email(falsies =>
     header => [
       Date  => undef,
       Zero  => 0,
