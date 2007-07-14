@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '2.001';
+$Email::Simple::VERSION = '2.002';
 $Email::Simple::GROUCHY = 0;
 
 # We are liberal in what we accept.
@@ -80,13 +80,13 @@ sub new {
     $text_ref = \'';
   }
 
-  $self->body_set($text_ref);
-
   my $header_class = $arg->{header_class} || $self->_default_header_class;
 
   $self->header_obj_set(
     $header_class->new(\$head, { crlf => $self->crlf })
   );
+
+  $self->body_set($text_ref);
 
   return $self;
 }
@@ -207,7 +207,7 @@ sub body_set {
   my ($self, $text) = @_;
   my $text_ref = ref $text ? $text : \$text;
   $self->{body} = $text_ref;
-  $self->body;
+  return;
 }
 
 =head2 as_string
