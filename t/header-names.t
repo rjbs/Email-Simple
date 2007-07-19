@@ -26,7 +26,7 @@ for my $email (@emails) {
     can_ok($email, $method);
     is_deeply(
       [ qw(From To Subject) ],
-      [ $email->$method     ],
+      [ $email->$method()   ],
       "have expected headers (via $method)"
     );
   }
