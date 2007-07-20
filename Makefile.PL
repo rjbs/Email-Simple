@@ -13,8 +13,10 @@ if (eval { require Email::MIME }) {
 ### ACHTUNG!  You need to update Email::MIME to a later version, as versions
 ### before 1.857 meddled in the guts of Email::Simple, which have been changed.
 ### If you are using an automated installer, this should happen automatically.
+###
+### This installation will proceed in five seconds.
 END_ACHTUNG
-    push @prereq, 'Email::MIME' => 1.857;
+    sleep 5;
   }
 }
 
