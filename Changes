@@ -1,3 +1,8 @@
+Revision history for Email-Simple-Creator
+
+1.423     2007-11-01
+          update Email::Simple prereq version
+          * https://rt.cpan.org/Ticket/Display.html?id=28520
 
 1.422     2007-07-13
           fixed header: why was it creating LFCR?

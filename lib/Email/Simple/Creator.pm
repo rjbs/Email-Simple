@@ -2,7 +2,7 @@ package Email::Simple::Creator;
 use strict;
 
 use vars qw[$VERSION $CRLF];
-$VERSION = '1.422';
+$VERSION = '1.423';
 
 sub _crlf {
   "\x0d\x0a";
