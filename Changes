@@ -1,5 +1,8 @@
 Revision history for Email-Simple-Creator
 
+1.424     2007-11-30
+          replace Email::Date prereq with Email::Date::Format
+
 1.423     2007-11-01
           update Email::Simple prereq version
           * https://rt.cpan.org/Ticket/Display.html?id=28520

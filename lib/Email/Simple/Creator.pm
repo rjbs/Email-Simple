@@ -2,15 +2,15 @@ package Email::Simple::Creator;
 use strict;
 
 use vars qw[$VERSION $CRLF];
-$VERSION = '1.423';
+$VERSION = '1.424';
 
 sub _crlf {
   "\x0d\x0a";
 }
 
 sub _date_header {
-  require Email::Date;
-  Email::Date::format_date();
+  require Email::Date::Format;
+  Email::Date::Format::email_date();
 }
 
 sub _add_to_header {
