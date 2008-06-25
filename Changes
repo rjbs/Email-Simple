@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::Simple.
 
+2.004     2008-06-25
+          publicize default_header_class method
+          remove the long-deprecated Headers.pm
+
 2.003     2007-07-19
           improve tests, for 5.5 compat
           remove conditional circular prereq on Email::MIME, replace it with a

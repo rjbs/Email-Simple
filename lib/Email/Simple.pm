@@ -6,7 +6,7 @@ use Carp ();
 
 use Email::Simple::Header;
 
-$Email::Simple::VERSION = '2.003';
+$Email::Simple::VERSION = '2.004';
 $Email::Simple::GROUCHY = 0;
 
 # We are liberal in what we accept.
@@ -80,7 +80,7 @@ sub new {
     $text_ref = \'';
   }
 
-  my $header_class = $arg->{header_class} || $self->_default_header_class;
+  my $header_class = $arg->{header_class} || $self->default_header_class;
 
   $self->header_obj_set(
     $header_class->new(\$head, { crlf => $self->crlf })
@@ -230,14 +230,14 @@ only.
 
 sub crlf { $_[0]->{mycrlf} }
 
-#=head2 default_header_class
-#
-#This returns the class used, by default, for header objects, and is provided
-#for subclassing.  The default default is Email::Simple::Header.
-#
-#=cut
+=head2 default_header_class
 
-sub _default_header_class { 'Email::Simple::Header' }
+This returns the class used, by default, for header objects, and is provided
+for subclassing.  The default default is Email::Simple::Header.
+
+=cut
+
+sub default_header_class { 'Email::Simple::Header' }
 
 1;
 
