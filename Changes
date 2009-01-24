@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+2.005     2009-01-22
+          add repository metadata
+
 2.004     2008-06-25
           publicize default_header_class method
           remove the long-deprecated Headers.pm

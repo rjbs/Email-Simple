@@ -1,5 +1,5 @@
 NAME
-    Email::Simple - Simple parsing of RFC2822 message format and headers
+    Email::Simple 2.005 - Simple parsing of RFC2822 message format and headers
 
 SYNOPSIS
         my $mail = Email::Simple->new($text);
