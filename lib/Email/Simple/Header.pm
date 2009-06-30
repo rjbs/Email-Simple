@@ -185,7 +185,8 @@ sub header {
   $header->header_set($field => @values);
 
 This method updates the value of the given header.  Existing headers have their
-values set in place.  Additional headers are added at the end.
+values set in place.  Additional headers are added at the end.  If no values
+are given to set, the header will be removed from to the message entirely.
 
 =cut
 

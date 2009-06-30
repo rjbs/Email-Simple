@@ -155,7 +155,8 @@ context, it returns the I<first> value for the named header.
     $email->header_set($field, $line1, $line2, ...);
 
 Sets the header to contain the given data. If you pass multiple lines
-in, you get multiple headers, and order is retained.
+in, you get multiple headers, and order is retained.  If no values are given to
+set, the header will be removed from to the message entirely.
 
 =head2 header_names
 
