@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+2.100     2009-11-03
+          merge Email-Simple-Creator into Email-Simple distribution
+
 2.005     2009-01-22
           add repository metadata
 
