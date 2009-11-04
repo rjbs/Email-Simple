@@ -1,5 +1,6 @@
-package Email::Simple::Creator;
 use strict;
+use warnings;
+package Email::Simple::Creator;
 
 our $VERSION = '2.100';
 
