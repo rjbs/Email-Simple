@@ -1,11 +1,14 @@
 Changes
 lib/Email/Simple.pm
+lib/Email/Simple/Creator.pm
 lib/Email/Simple/Header.pm
+LICENSE
 Makefile.PL
 MANIFEST
 README
 t/badly-folded.t
 t/basic.t
+t/create.t
 t/ct-header.t
 t/folding.t
 t/header-case.t
@@ -34,4 +37,3 @@ t/test-mails/long-msgid
 t/test-mails/many-repeats
 t/undef-message.t
 t/unit.t
-LICENSE
