@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+2.101     ?
+          remove instruction to use ::Creator instead of just ->create
+
 2.100     2009-11-03
           merge Email-Simple-Creator into Email-Simple distribution
 

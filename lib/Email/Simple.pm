@@ -66,8 +66,8 @@ message, and return an object.  C<$message> may be a reference to a message
 string, in which case the string will be altered in place.  This can result in
 significant memory savings.
 
-If you want to create a message from scratch, you should use the plugin
-L<Email::Simple::Creator>.
+If you want to create a message from scratch, you should use the C<L</create>>
+method.
 
 Valid arguments are:
 
