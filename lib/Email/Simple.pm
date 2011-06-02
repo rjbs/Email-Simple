@@ -20,6 +20,7 @@ Email::Simple - simple parsing of RFC2822 message format and headers
 
 =head1 SYNOPSIS
 
+  use Email::Simple;
   my $email = Email::Simple->new($text);
 
   my $from_header = $email->header("From");
