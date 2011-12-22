@@ -35,7 +35,7 @@ METHODS
     Parse an email from a scalar containing an RFC2822 formatted message,
     and return an object.
 
-header
+  header
     Returns a list of the contents of the given header.
 
     If called in scalar context, will return the first header so named. I'm
