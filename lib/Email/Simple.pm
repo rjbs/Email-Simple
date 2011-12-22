@@ -34,7 +34,7 @@ Email::Simple - simple parsing of RFC2822 message format and headers
   print $email->as_string;
 
 ...or, to create a message from scratch...
-  
+
   my $email = Email::Simple->create(
       header => [
         From    => 'casey@geeknest.com',
