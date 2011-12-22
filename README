@@ -1,5 +1,5 @@
 NAME
-    Email::Simple 2.005 - Simple parsing of RFC2822 message format and headers
+    Email::Simple 2.101 - Simple parsing of RFC2822 message format and headers
 
 SYNOPSIS
         my $mail = Email::Simple->new($text);
@@ -35,7 +35,7 @@ METHODS
     Parse an email from a scalar containing an RFC2822 formatted message,
     and return an object.
 
-header
+  header
     Returns a list of the contents of the given header.
 
     If called in scalar context, will return the first header so named. I'm
