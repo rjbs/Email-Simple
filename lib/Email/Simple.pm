@@ -63,7 +63,7 @@ external dependencies, and correct.
   my $email = Email::Simple->new($message, \%arg);
 
 This method parses an email from a scalar containing an RFC2822 formatted
-message, and returns an object.  C<$message> may be a reference to a message
+message and returns an object.  C<$message> may be a reference to a message
 string, in which case the string will be altered in place.  This can result in
 significant memory savings.
 
