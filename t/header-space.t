@@ -1,7 +1,7 @@
 #!perl -T
 use strict;
 
-use Test::More tests => 8;
+use Test::More tests => 12;
 use Email::Simple;
 
 my @crlf = (
@@ -16,5 +16,7 @@ while (my ($name, $eol) = splice @crlf, 0, 2) {
   is($m->header('foo-bar'), 'Baz', "no spaces trail with $name");
 
   is($m->crlf, $eol, "correctly detected crlf value");
-}
 
+  $m = Email::Simple->new("Foo-Bar: Baz${eol}");
+  is($m->crlf, $eol, "correctly detected crlf value");
+}

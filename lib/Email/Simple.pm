@@ -123,7 +123,8 @@ sub _split_head_from_body {
   } else {
 
     # The body is, of course, optional.
-    return (undef, "\n");
+    $$text_ref =~ /($crlf)/gsm;
+    return (undef, ($1 || "\n"));
   }
 }
 
