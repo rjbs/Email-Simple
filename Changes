@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::Simple.
 
+2.102     2012-07-13
+          recognize crlf correctly even if there is no body (thanks, Christian
+          Walde)
+
 2.101     2011-12-23
           remove instruction to use ::Creator instead of just ->create
 

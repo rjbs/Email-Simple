@@ -5,7 +5,7 @@ use Carp ();
 
 require Email::Simple;
 
-$Email::Simple::Header::VERSION = '2.101';
+$Email::Simple::Header::VERSION = '2.102';
 
 =head1 NAME
 
