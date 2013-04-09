@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Email::Simple::Creator;
 
-our $VERSION = '2.102';
+our $VERSION = '2.103';
 
 sub _crlf {
   "\x0d\x0a";
