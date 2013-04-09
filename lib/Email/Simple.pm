@@ -8,7 +8,8 @@ use Carp ();
 use Email::Simple::Creator;
 use Email::Simple::Header;
 
-our $VERSION = '2.200_01';
+our $VERSION = '2.200_02';
+$VERSION = eval $VERSION;
 our $GROUCHY = 0;
 
 # We are liberal in what we accept.
