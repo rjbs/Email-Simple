@@ -71,14 +71,17 @@ sub _header_to_list {
 
   while ($$head =~ m/\G(.+?)$crlf/go) {
     local $_ = $1;
-    if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
+
+    if (/^\s+/ or not /^([^:]+):\s*(.*)/) {
       # This is a continuation line. We fold it onto the end of
       # the previous header.
       next if !@headers;  # Well, that sucks.  We're continuing nothing?
 
-      $headers[-1] .= $headers[-1] =~ /\S/ ? " $_" : $_;
+      (my $trimmed = $_) =~ s/^\s+//;
+      $headers[-1][0] .= $headers[-1][0] =~ /\S/ ? " $_" : $_;
+      $headers[-1][1] .= "$crlf$_";
     } else {
-      push @headers, $1, $2;
+      push @headers, $1, [ $2, $_ ];
     }
   }
 
