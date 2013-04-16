@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Simple.
 
+2.200_01  2013-04-09
+          preserve the original header layout unless changed
+
 2.103     2013-04-09
           fix a bug in header unfolding where "0\n 1" could be unfolded to "01"
 

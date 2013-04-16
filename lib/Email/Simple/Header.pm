@@ -5,7 +5,8 @@ use Carp ();
 
 require Email::Simple;
 
-$Email::Simple::Header::VERSION = '2.103';
+our $VERSION = '2.200_02';
+$VERSION = eval $VERSION;
 
 =head1 NAME
 
@@ -71,14 +72,17 @@ sub _header_to_list {
 
   while ($$head =~ m/\G(.+?)$crlf/go) {
     local $_ = $1;
-    if (s/^\s+// or not /^([^:]+):\s*(.*)/) {
+
+    if (/^\s+/ or not /^([^:]+):\s*(.*)/) {
       # This is a continuation line. We fold it onto the end of
       # the previous header.
       next if !@headers;  # Well, that sucks.  We're continuing nothing?
 
-      $headers[-1] .= $headers[-1] =~ /\S/ ? " $_" : $_;
+      (my $trimmed = $_) =~ s/^\s+//;
+      $headers[-1][0] .= $headers[-1][0] =~ /\S/ ? " $trimmed" : $trimmed;
+      $headers[-1][1] .= "$mycrlf$_";
     } else {
-      push @headers, $1, $2;
+      push @headers, $1, [ $2, $_ ];
     }
   }
 
@@ -115,11 +119,13 @@ sub as_string {
   };
 
   for (my $i = 0; $i < @$headers; $i += 2) {
-    my $header = "$headers->[$i]: $headers->[$i + 1]";
+    if (ref $headers->[ $i + 1 ]) {
+      $header_str .= $headers->[ $i + 1 ][1] . $self->crlf;
+    } else {
+      my $header = "$headers->[$i]: $headers->[$i + 1]";
 
-    $header_str .= lc $headers->[$i] eq 'content-type'
-                 ? $header . $self->crlf
-                 : $self->_fold($header, $fold_arg);
+      $header_str .= $self->_fold($header, $fold_arg);
+    }
   }
 
   return $header_str;
@@ -150,7 +156,9 @@ they appear in the header.
 sub header_pairs {
   my ($self) = @_;
 
-  return @{ $self->{headers} };
+  my @pairs = map {; _str_value($_) } @{ $self->{headers} };
+
+  return @pairs;
 }
 
 =head2 header
@@ -163,6 +171,8 @@ named field does not appear in the header, this method returns false.
 
 =cut
 
+sub _str_value { return ref $_[0] ? $_[0][0] : $_[0] }
+
 sub header {
   my ($self, $field) = @_;
 
@@ -170,11 +180,11 @@ sub header {
   my $lc_field = lc $field;
 
   if (wantarray) {
-    return map { @$headers[ $_ * 2 + 1 ] }
+    return map { _str_value($headers->[ $_ * 2 + 1 ]) }
       grep { lc $headers->[ $_ * 2 ] eq $lc_field } 0 .. int($#$headers / 2);
   } else {
     for (0 .. int($#$headers / 2)) {
-      return $headers->[ $_ * 2 + 1 ] if lc $headers->[ $_ * 2 ] eq $lc_field;
+      return _str_value($headers->[ $_ * 2 + 1 ]) if lc $headers->[ $_ * 2 ] eq $lc_field;
     }
     return;
   }
