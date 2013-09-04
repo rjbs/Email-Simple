@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+
+2.104     2013-09-04 09:42:26 America/New_York
           repackage with Dist::Zilla; update repo and bug tracker
 
 2.201     2013-04-16
