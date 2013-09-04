@@ -125,8 +125,8 @@ sub as_string {
 
 =method header_names
 
-This method returns the unique header names found in this header, in no
-particular order.
+This method returns a list of the unique header names found in this header, in
+no particular order.
 
 =cut
 
@@ -140,8 +140,13 @@ sub header_names {
 
 =method header_pairs
 
-This method returns all the field/value pairs in the header, in the order that
-they appear in the header.
+  my @pairs = $header->header_pairs;
+  my $first_name  = $pairs[0];
+  my $first_value = $pairs[1];
+
+This method returns a list of all the field/value pairs in the header, in the
+order that they appear in the header.  (Remember: don't try assigning that to a
+hash.  Some fields may appear more than once!)
 
 =cut
 
