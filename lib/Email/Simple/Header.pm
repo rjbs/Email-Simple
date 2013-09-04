@@ -10,7 +10,7 @@ require Email::Simple;
 
   my $email = Email::Simple->new($text);
 
-  my $header = $email->head;
+  my $header = $email->header_obj;
   print $header->as_string;
 
 =head1 DESCRIPTION
