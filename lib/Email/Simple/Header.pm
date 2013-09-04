@@ -1,16 +1,10 @@
-package Email::Simple::Header;
-
 use strict;
+use warnings;
+package Email::Simple::Header;
+# ABSTRACT: the header of an Email::Simple message
 use Carp ();
 
 require Email::Simple;
-
-our $VERSION = '2.201';
-$VERSION = eval $VERSION;
-
-=head1 NAME
-
-Email::Simple::Header - the header of an Email::Simple message
 
 =head1 SYNOPSIS
 
@@ -24,9 +18,7 @@ Email::Simple::Header - the header of an Email::Simple message
 This method implements the headers of an Email::Simple object.  It is a very
 minimal interface, and is mostly for private consumption at the moment.
 
-=head1 METHODS
-
-=head2 new
+=method new
 
   my $header = Email::Simple::Header->new($head, \%arg);
 
@@ -89,7 +81,7 @@ sub _header_to_list {
   return \@headers;
 }
 
-=head2 as_string
+=method as_string
 
   my $string = $header->as_string(\%arg);
 
@@ -131,7 +123,7 @@ sub as_string {
   return $header_str;
 }
 
-=head2 header_names
+=method header_names
 
 This method returns the unique header names found in this header, in no
 particular order.
@@ -146,7 +138,7 @@ sub header_names {
     map { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
 }
 
-=head2 header_pairs
+=method header_pairs
 
 This method returns all the field/value pairs in the header, in the order that
 they appear in the header.
@@ -161,7 +153,7 @@ sub header_pairs {
   return @pairs;
 }
 
-=head2 header
+=method header
 
   my $first_value = $header->header($field);
   my @all_values  = $header->header($field);
@@ -190,7 +182,7 @@ sub header {
   }
 }
 
-=head2 header_set
+=method header_set
 
   $header->header_set($field => @values);
 
@@ -245,7 +237,7 @@ sub header_set {
   return wantarray ? @data : $data[0];
 }
 
-=head2 crlf
+=method crlf
 
 This method returns the newline string used in the header.
 
@@ -253,7 +245,7 @@ This method returns the newline string used in the header.
 
 sub crlf { $_[0]->{mycrlf} }
 
-# =head2 fold
+# =method fold
 # 
 #   my $folded = $header->fold($line, \%arg);
 # 
@@ -300,7 +292,7 @@ sub _fold {
   return $folded;
 }
 
-# =head2 default_fold_at
+# =method default_fold_at
 # 
 # This method (provided for subclassing) returns the default length at which to
 # try to fold header lines.  The default default is 78.
@@ -309,7 +301,7 @@ sub _fold {
 
 sub _default_fold_at { 78 }
 
-# =head2 default_fold_indent
+# =method default_fold_indent
 # 
 # This method (provided for subclassing) returns the default string used to
 # indent folded headers.  The default default is a single space.
@@ -317,24 +309,5 @@ sub _default_fold_at { 78 }
 # =cut
 
 sub _default_fold_indent { " " }
-
-=head1 PERL EMAIL PROJECT
-
-This module is maintained by the Perl Email Project
-
-L<http://emailproject.perl.org/>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2006-2007 by Ricardo SIGNES
-
-Copyright 2004 by Casey West
-
-Copyright 2003 by Simon Cozens
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut
 
 1;

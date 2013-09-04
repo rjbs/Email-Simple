@@ -2,22 +2,17 @@ use 5.006;
 use strict;
 use warnings;
 package Email::Simple;
+# ABSTRACT: simple parsing of RFC2822 message format and headers
 
 use Carp ();
 
 use Email::Simple::Creator;
 use Email::Simple::Header;
 
-our $VERSION = '2.201';
-$VERSION = eval $VERSION;
 our $GROUCHY = 0;
 
 # We are liberal in what we accept.
 sub __crlf_re { qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; }
-
-=head1 NAME
-
-Email::Simple - simple parsing of RFC2822 message format and headers
 
 =head1 SYNOPSIS
 
@@ -51,15 +46,12 @@ Email::Simple - simple parsing of RFC2822 message format and headers
 
 =head1 DESCRIPTION
 
-C<Email::Simple> is the first deliverable of the "Perl Email Project."  The
-Email:: namespace was begun as a reaction against the increasing complexity and
-bugginess of Perl's existing email modules.  C<Email::*> modules are meant to
-be simple to use and to maintain, pared to the bone, fast, minimal in their
+The Email:: namespace was begun as a reaction against the increasing complexity
+and bugginess of Perl's existing email modules.  C<Email::*> modules are meant
+to be simple to use and to maintain, pared to the bone, fast, minimal in their
 external dependencies, and correct.
 
-=head1 METHODS
-
-=head2 new
+=method new
 
   my $email = Email::Simple->new($message, \%arg);
 
@@ -129,7 +121,7 @@ sub _split_head_from_body {
   }
 }
 
-=head2 create
+=method create
 
   my $email = Email::Simple->create(header => [ @headers ], body => '...');
 
@@ -181,7 +173,7 @@ sub create {
 }
 
 
-=head2 header_obj
+=method header_obj
 
   my $header = $email->header_obj;
 
@@ -200,7 +192,7 @@ sub header_obj {
 # dependency tree to upgrade.  i.e., never and/or in Perl 6 -- rjbs, 2006-11-28
 BEGIN { *__head = \&header_obj }
 
-=head2 header_obj_set
+=method header_obj_set
 
   $email->header_obj_set($new_header_obj);
 
@@ -214,7 +206,7 @@ sub header_obj_set {
   $self->{header} = $obj;
 }
 
-=head2 header
+=method header
 
   my @values = $email->header($header_name);
   my $first  = $email->header($header_name);
@@ -222,7 +214,7 @@ sub header_obj_set {
 In list context, this returns every value for the named header.  In scalar
 context, it returns the I<first> value for the named header.
 
-=head2 header_set
+=method header_set
 
     $email->header_set($field, $line1, $line2, ...);
 
@@ -230,7 +222,7 @@ Sets the header to contain the given data. If you pass multiple lines
 in, you get multiple headers, and order is retained.  If no values are given to
 set, the header will be removed from to the message entirely.
 
-=head2 header_names
+=method header_names
 
     my @header_names = $email->header_names;
 
@@ -241,7 +233,7 @@ guaranteed to get the headers in any order at all.
 
 For backwards compatibility, this method can also be called as B<headers>.
 
-=head2 header_pairs
+=method header_pairs
 
   my @headers = $email->header_pairs;
 
@@ -259,7 +251,7 @@ BEGIN {
   *headers = \&header_names;
 }
 
-=head2 body
+=method body
 
 Returns the body text of the mail.
 
@@ -270,7 +262,7 @@ sub body {
   return (defined ${ $self->{body} }) ? ${ $self->{body} } : '';
 }
 
-=head2 body_set
+=method body_set
 
 Sets the body text of the mail.
 
@@ -283,7 +275,7 @@ sub body_set {
   return;
 }
 
-=head2 as_string
+=method as_string
 
 Returns the mail as a string, reconstructing the headers.
 
@@ -294,7 +286,7 @@ sub as_string {
   return $self->header_obj->as_string . $self->crlf . $self->body;
 }
 
-=head2 crlf
+=method crlf
 
 This method returns the type of newline used in the email.  It is an accessor
 only.
@@ -303,7 +295,7 @@ only.
 
 sub crlf { $_[0]->{mycrlf} }
 
-=head2 default_header_class
+=method default_header_class
 
 This returns the class used, by default, for header objects, and is provided
 for subclassing.  The default default is Email::Simple::Header.
@@ -324,25 +316,5 @@ say for example when writing a mail filter for invocation from a .forward file
 (for this we recommend you use L<Email::Filter> anyway).  For more information
 on this issue please consult RT issue 2478,
 L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
-
-=head1 PERL EMAIL PROJECT
-
-This module is maintained by the Perl Email Project
-
-L<http://emailproject.perl.org/>
-
-=head1 AUTHORS
-
-Simon Cozens originally wrote Email::Simple in 2003.  Casey West took over
-maintenance in 2004, and Ricardo SIGNES took over maintenance in 2006.
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2004 by Casey West
-
-Copyright 2003 by Simon Cozens
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut

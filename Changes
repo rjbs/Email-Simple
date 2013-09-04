@@ -1,4 +1,7 @@
-Revision history for Perl extension Email::Simple.
+Revision history for Perl extension Email::Simple
+
+{{$NEXT}}
+          repackage with Dist::Zilla; update repo and bug tracker
 
 2.201     2013-04-16
           no changes
