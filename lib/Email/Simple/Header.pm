@@ -2,6 +2,7 @@ use strict;
 use warnings;
 package Email::Simple::Header;
 # ABSTRACT: the header of an Email::Simple message
+
 use Carp ();
 
 require Email::Simple;
