@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 31;
 
 use_ok 'Email::Simple';
 use_ok 'Email::Simple::Creator';
@@ -18,7 +18,7 @@ sub tested_email {
     substr($string, -2, 1),
     substr($string, -1, 1),
   );
-  
+
   is(
     sprintf("%03u %03u", map { ord } @last_two),
     '013 010',
@@ -141,6 +141,38 @@ Zero: 0
 Empty: 
 
 The body is uninteresting.
+END_MESSAGE
+
+  my $string = $email->as_string;
+  $string  =~ s/\x0d\x0a/\n/gsm;
+
+  is(
+    $string,
+    $expected,
+    "we got just the string we expected",
+  );
+}
+
+{ # no date header, we provided one
+  my @warnings;
+  local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+
+  my $email = tested_email(has_date =>
+    header => [
+      Date       => 'testing',
+      'X-Header' => "foo\n\nbar",
+    ],
+    body => q[This is a single-line message.],
+  );
+
+  is(@warnings, 1, "there was one warning");
+  like($warnings[0], qr/vertical whitespace/, 'and it was about \v characters');
+
+  my $expected = <<'END_MESSAGE';
+Date: testing
+X-Header: foo bar
+
+This is a single-line message.
 END_MESSAGE
 
   my $string = $email->as_string;
