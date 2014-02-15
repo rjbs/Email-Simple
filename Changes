@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+
+2.203     2014-02-14 21:56:14-05:00 America/New_York
         - translate vertical whitespace in headers into horizontal whitespace,
           with a warning
 
