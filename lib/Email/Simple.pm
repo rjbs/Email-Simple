@@ -259,7 +259,10 @@ Returns the body text of the mail.
 
 sub body {
   my ($self) = @_;
-  return (defined ${ $self->{body} }) ? ${ $self->{body} } : '';
+  # return (defined ${ $self->{_body} }) ? ${ $self->{_body} } : '';
+  return q{} unless @{ $self->{_body} };
+
+  return join($self->{mycrlf}, @{$self->{_body}});
 }
 
 =method body_set
@@ -270,9 +273,19 @@ Sets the body text of the mail.
 
 sub body_set {
   my ($self, $text) = @_;
-  my $text_ref = ref $text ? $text : \$text;
-  $self->{body} = $text_ref;
+  my $ref = ref $text;
+  my $lines = ! $ref             ? $self->__textref_to_aref(\$text)
+              : $ref eq 'SCALAR' ? $self->__textref_to_aref( $text)
+              : Carp::croak("can't set email body to $ref ref");
+
+  $self->{_body} = $lines;
   return;
+}
+
+sub __textref_to_aref {
+  my ($self, $textref) = @_;
+  return [] unless defined $$textref;
+  return [ split $self->__crlf_re, $$textref, -1 ];
 }
 
 =method as_string
