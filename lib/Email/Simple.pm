@@ -161,8 +161,8 @@ sub create {
 
   my $email = $class->new($header);
 
-  $email->header_set(Date => $CREATOR->_date_header)
-    unless defined $email->header('Date');
+  $email->header_raw_set(Date => $CREATOR->_date_header)
+    unless defined $email->header_raw('Date');
 
   $body = (join $CREATOR->_crlf, split /\x0d\x0a|\x0a\x0d|\x0a|\x0d/, $body)
         . $CREATOR->_crlf;
@@ -222,6 +222,14 @@ Sets the header to contain the given data. If you pass multiple lines
 in, you get multiple headers, and order is retained.  If no values are given to
 set, the header will be removed from to the message entirely.
 
+=method header_raw
+
+This is another name (and the preferred one) for C<header>.
+
+=method header_raw_set
+
+This is another name (and the preferred one) for C<header_set>.
+
 =method header_names
 
     my @header_names = $email->header_names;
@@ -241,11 +249,20 @@ This method returns a list of pairs describing the contents of the header.
 Every other value, starting with and including zeroth, is a header name and the
 value following it is the header value.
 
+=method header_raw_pairs
+
+This is another name (and the preferred one) for C<header_pairs>.
+
 =cut
 
 BEGIN {
   no strict 'refs';
-  for my $method (qw(header header_set header_names header_pairs)) {
+  for my $method (qw(
+    header_raw header
+    header_raw_set header_set
+    header_raw_pairs header_pairs
+    header_names
+  )) {
     *$method = sub { (shift)->header_obj->$method(@_) };
   }
   *headers = \&header_names;

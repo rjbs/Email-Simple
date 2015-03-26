@@ -139,9 +139,9 @@ sub header_names {
     map { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
 }
 
-=method header_pairs
+=method header_raw_pairs
 
-  my @pairs = $header->header_pairs;
+  my @pairs = $header->header_raw_pairs;
   my $first_name  = $pairs[0];
   my $first_value = $pairs[1];
 
@@ -149,9 +149,17 @@ This method returns a list of all the field/value pairs in the header, in the
 order that they appear in the header.  (Remember: don't try assigning that to a
 hash.  Some fields may appear more than once!)
 
+=method header_pairs
+
+L<header_pairs> is another name for L<header_raw_pairs>, which was the original
+name for the method and which you'll see most often.  In general, though, it's
+better to be explicit and use L<header_raw_pairs>.  (In Email::MIME,
+L<header_str_pairs> exists for letting the library do the header decoding for
+you.)
+
 =cut
 
-sub header_pairs {
+sub header_raw_pairs {
   my ($self) = @_;
 
   my @pairs = map {; _str_value($_) } @{ $self->{headers} };
@@ -159,19 +167,30 @@ sub header_pairs {
   return @pairs;
 }
 
-=method header
+sub header_pairs {
+  my ($self) = @_;
+  $self->header_raw_pairs;
+}
 
-  my $first_value = $header->header($field);
-  my @all_values  = $header->header($field);
+=method header_raw
+
+  my $first_value = $header->header_raw($field);
+  my @all_values  = $header->header_raw($field);
 
 This method returns the value or values of the given header field.  If the
 named field does not appear in the header, this method returns false.
+
+=method header
+
+This method just calls C<header_raw>.  It's the older name for C<header_raw>,
+but it can be a problem because L<Email::MIME>, a subclass of Email::Simple,
+makes C<header> return the header's decoded value.
 
 =cut
 
 sub _str_value { return ref $_[0] ? $_[0][0] : $_[0] }
 
-sub header {
+sub header_raw {
   my ($self, $field) = @_;
 
   my $headers  = $self->{headers};
@@ -188,13 +207,26 @@ sub header {
   }
 }
 
-=method header_set
+sub header {
+  my ($self, $field) = @_;
+  $self->header_raw($field);
+}
 
-  $header->header_set($field => @values);
+=method header_raw_set
+
+  $header->header_raw_set($field => @values);
 
 This method updates the value of the given header.  Existing headers have their
 values set in place.  Additional headers are added at the end.  If no values
 are given to set, the header will be removed from to the message entirely.
+
+=method header_set
+
+L<header_set> is another name for L<header_raw_set>, which was the original
+name for the method and which you'll see most often.  In general, though, it's
+better to be explicit and use L<header_raw_set>.  (In Email::MIME,
+L<header_str_set> exists for letting the library do the header encoding for
+you.)
 
 =cut
 
@@ -207,7 +239,7 @@ are given to set, the header will be removed from to the message entirely.
 # However, a field body may contain CRLF when used in header "folding" and
 # "unfolding" as described in section 2.2.3.
 
-sub header_set {
+sub header_raw_set {
   my ($self, $field, @data) = @_;
 
   # I hate this block. -- rjbs, 2006-10-06
@@ -241,6 +273,11 @@ sub header_set {
   }
 
   return wantarray ? @data : $data[0];
+}
+
+sub header_set {
+  my ($self, $field, @data) = @_;
+  $self->header_raw_set($field, @data);
 }
 
 =method crlf
