@@ -2,6 +2,10 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.204     2015-03-25 22:50:49-04:00 America/New_York
+        - provide header_raw and header_raw_set for consistent behavior between
+          Email::Simple and Email::MIME; also, header_raw_pairs
+
 2.203     2014-02-14 21:56:14-05:00 America/New_York
         - translate vertical whitespace in headers into horizontal whitespace,
           with a warning
