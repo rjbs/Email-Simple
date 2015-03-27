@@ -2,6 +2,13 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.206     2015-03-26 23:30:51-04:00 America/New_York
+        - the changes from 2.204 are back (and re-listed here), but now with
+          the added benefit of not breaking Email::MIME; see the git repository
+          for the sordid details
+        - provide header_raw and header_raw_set for consistent behavior between
+          Email::Simple and Email::MIME; also, header_raw_pairs
+
 2.205     2015-03-26 14:54:45-04:00 America/New_York
         - undo changes from 2.204 until safe Email::MIME upgrade path is
           available
