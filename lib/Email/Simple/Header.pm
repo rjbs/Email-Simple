@@ -207,10 +207,7 @@ sub header_raw {
   }
 }
 
-sub header {
-  my ($self, $field) = @_;
-  $self->header_raw($field);
-}
+*header = \&header_raw;
 
 =method header_raw_set
 
