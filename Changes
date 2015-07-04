@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+        - fold headers passed to header arg in create method
+          https://github.com/rjbs/Email-Simple/issues/7
 
 2.206     2015-03-26 23:30:51-04:00 America/New_York
         - the changes from 2.204 are back (and re-listed here), but now with

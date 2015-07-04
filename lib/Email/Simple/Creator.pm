@@ -22,7 +22,7 @@ sub _add_to_header {
     Carp::carp("replaced vertical whitespace in $key header with space; this will become fatal in a future version");
   }
 
-  $$header .= "$key: $value" . $class->_crlf;
+  $$header .= Email::Simple::Header->__fold_objless("$key: $value", 78, q{ }, $class->_crlf);
 }
 
 sub _finalize_header {

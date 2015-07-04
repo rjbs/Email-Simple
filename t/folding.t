@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 # This time, with folding!
 
@@ -35,4 +35,21 @@ END
 
   my $email = Email::Simple->new($text);
   is($email->header('Fold-2'), '0 1 2', "we unfold with a false start string");
+}
+
+{
+  my $to   = 'to@example.com';
+  my $from = 'from@example.com';
+
+  my $subject = 'A ' x 50; # Long enough to need to be folded
+
+  my $email_1 = Email::Simple->create(
+    header => [
+      To      => $to,
+      From    => $from,
+      Subject => $subject, # string specified in constructor does *not* get folded
+    ]
+  );
+
+  unlike($email_1->as_string, qr/\Q$subject/, "we fold the 50-A line");
 }

@@ -316,15 +316,21 @@ sub _fold {
 
   my $indent = $arg->{indent} || $self->_default_fold_indent;
 
+  return $self->__fold_objless($line, $limit, $indent, $self->crlf);
+}
+
+sub __fold_objless {
+  my ($self, $line, $limit, $indent, $crlf) = @_;
+
   # We know it will not contain any new lines at present
   my $folded = "";
   while ($line) {
     if ($line =~ s/^(.{0,$limit})(\s|\z)//) {
-      $folded .= $1 . $self->crlf;
+      $folded .= $1 . $crlf;
       $folded .= $indent if $line;
     } else {
       # Basically nothing we can do. :(
-      $folded .= $line . $self->crlf;
+      $folded .= $line . $crlf;
       last;
     }
   }
