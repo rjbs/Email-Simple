@@ -2,6 +2,10 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.208     2015-07-20 20:34:04-04:00 America/New_York
+        - same as v2.207
+        - ...but bump perl required to v5.8
+
 2.207     2015-07-04 14:23:36-04:00 America/New_York (TRIAL RELEASE)
         - fold headers passed to header arg in create method
           https://github.com/rjbs/Email-Simple/issues/7
