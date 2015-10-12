@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+        - avoid opportunity for pathological backtracking behavior on
+          malformed messages
 
 2.208     2015-07-20 20:34:04-04:00 America/New_York
         - same as v2.207

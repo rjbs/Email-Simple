@@ -109,14 +109,18 @@ sub _split_head_from_body {
   my ($self, $text_ref) = @_;
 
   # For body/header division, see RFC 2822, section 2.1
-  my $crlf = $self->__crlf_re;
+  #
+  # Honestly, are we *ever* going to have LFCR messages?? -- rjbs, 2015-10-11
+  my $re = qr{\x0a\x0d\x0a\x0d|\x0d\x0a\x0d\x0a|\x0d\x0d|\x0a\x0a};
 
-  if ($$text_ref =~ /(?:.*?($crlf))\1/gsm) {
-    return (pos($$text_ref), $1);
+  if ($$text_ref =~ /($re)/gsm) {
+    my $crlf = substr $1, 0, length($1)/2;
+    return (pos($$text_ref), $crlf);
   } else {
 
     # The body is, of course, optional.
-    $$text_ref =~ /($crlf)/gsm;
+    my $re = $self->__crlf_re;
+    $$text_ref =~ /($re)/gsm;
     return (undef, ($1 || "\n"));
   }
 }
