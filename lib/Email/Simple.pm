@@ -334,8 +334,6 @@ __END__
 Email::Simple handles only RFC2822 formatted messages.  This means you cannot
 expect it to cope well as the only parser between you and the outside world,
 say for example when writing a mail filter for invocation from a .forward file
-(for this we recommend you use L<Email::Filter> anyway).  For more information
-on this issue please consult RT issue 2478,
-L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
+(for this we recommend you use L<Email::Filter> anyway).
 
 =cut
