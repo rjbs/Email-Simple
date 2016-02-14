@@ -324,10 +324,10 @@ sub __fold_objless {
 
   # We know it will not contain any new lines at present
   my $folded = "";
-  while ($line) {
+  while (length $line) {
     if ($line =~ s/^(.{0,$limit})(\s|\z)//) {
       $folded .= $1 . $crlf;
-      $folded .= $indent if $line;
+      $folded .= $indent if length $line;
     } else {
       # Basically nothing we can do. :(
       $folded .= $line . $crlf;
