@@ -2,6 +2,10 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.210     2016-03-05 12:16:16-05:00 America/New_York
+        - fix a bug where folding treated the string "0" as an empty string
+          (thanks, Pali Rohár)
+
 2.209     2015-10-11 22:57:04-04:00 America/New_York (TRIAL RELEASE)
         - avoid opportunity for pathological backtracking behavior on
           malformed messages
