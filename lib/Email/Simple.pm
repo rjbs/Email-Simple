@@ -76,7 +76,7 @@ sub new {
 
   Carp::croak 'Unable to parse undefined message' if ! defined $text;
 
-  my $text_ref = ref $text ? $text : \$text;
+  my $text_ref = (ref $text || '' eq 'SCALAR') ? $text : \$text;
 
   my ($pos, $mycrlf) = $class->_split_head_from_body($text_ref);
 
