@@ -136,7 +136,7 @@ sub header_names {
 
   my %seen;
   grep  { !$seen{ lc $_ }++ }
-    map { $headers->[ $_ * 2 ] } 0 .. int($#$headers / 2);
+    map { $headers->[ $_ * 2 ] } 0 .. @$headers / 2 - 1;
 }
 
 =method header_raw_pairs
@@ -198,9 +198,9 @@ sub header_raw {
 
   if (wantarray) {
     return map { _str_value($headers->[ $_ * 2 + 1 ]) }
-      grep { lc $headers->[ $_ * 2 ] eq $lc_field } 0 .. int($#$headers / 2);
+      grep { lc $headers->[ $_ * 2 ] eq $lc_field } 0 .. @$headers / 2 - 1;
   } else {
-    for (0 .. int($#$headers / 2)) {
+    for (0 .. @$headers / 2 - 1) {
       return _str_value($headers->[ $_ * 2 + 1 ]) if lc $headers->[ $_ * 2 ] eq $lc_field;
     }
     return;
@@ -251,7 +251,7 @@ sub header_raw_set {
 
   my $lc_field = lc $field;
   my @indices = grep { lc $headers->[$_] eq $lc_field }
-    map { $_ * 2 } 0 .. int($#$headers / 2);
+    map { $_ * 2 } 0 .. @$headers / 2 - 1;
 
   if (@indices > @data) {
     my $overage = @indices - @data;
