@@ -214,9 +214,12 @@ sub header_obj_set {
 
   my @values = $email->header($header_name);
   my $first  = $email->header($header_name);
+  my $value  = $email->header($header_name, $index);
 
 In list context, this returns every value for the named header.  In scalar
-context, it returns the I<first> value for the named header.
+context, it returns the I<first> value for the named header.  If second
+parameter is specified then instead I<first> value it returns value at
+position C<$index> (negative C<$index> is from the end).
 
 =method header_set
 

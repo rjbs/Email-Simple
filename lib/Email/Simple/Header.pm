@@ -175,6 +175,7 @@ sub header_pairs {
 =method header_raw
 
   my $first_value = $header->header_raw($field);
+  my $nth_value   = $header->header_raw($field, $index);
   my @all_values  = $header->header_raw($field);
 
 This method returns the value or values of the given header field.  If the
@@ -191,19 +192,24 @@ makes C<header> return the header's decoded value.
 sub _str_value { return ref $_[0] ? $_[0][0] : $_[0] }
 
 sub header_raw {
-  my ($self, $field) = @_;
+  my ($self, $field, $index) = @_;
 
   my $headers  = $self->{headers};
   my $lc_field = lc $field;
 
-  if (wantarray) {
+  if (wantarray and not defined $index) {
     return map { _str_value($headers->[ $_ * 2 + 1 ]) }
       grep { lc $headers->[ $_ * 2 ] eq $lc_field } 0 .. @$headers / 2 - 1;
   } else {
-    for (0 .. @$headers / 2 - 1) {
-      return _str_value($headers->[ $_ * 2 + 1 ]) if lc $headers->[ $_ * 2 ] eq $lc_field;
+    $index = 0 unless defined $index;
+    my $max = @$headers / 2 - 1;
+    my @indexes = $index >= 0 ? (0 .. $max) : reverse(0 .. $max);
+    $index = -1-$index if $index < 0;
+    for (@indexes) {
+      next unless lc $headers->[ $_ * 2 ] eq $lc_field;
+      return _str_value($headers->[ $_ * 2 + 1 ]) if $index-- == 0;
     }
-    return;
+    return undef;
   }
 }
 
