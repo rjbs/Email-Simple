@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+
+2.211     2016-11-12 09:39:09-05:00 America/New_York
         - fix a fencepost error in headers and header_names that led to a
           spurious undef in return and to a warning (thanks, Pali Rohár)
 
