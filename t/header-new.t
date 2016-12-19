@@ -1,6 +1,6 @@
 use strict;
 
-use Test::More tests => 21;
+use Test::More tests => 7;
 
 # This test could test all manner of Email::Simple::Header stuff, but is mostly
 # just here specifically to test construction and sanity of result with both a
@@ -21,57 +21,61 @@ for my $header_param ($header_string, \$header_string) {
 
   isa_ok($head, 'Email::Simple::Header');
 
-  is_deeply(
-    [ $head->header('foo') ],
-    [ 1, 2, 3 ],
-    "multi-value header",
-  );
+  for my $method (qw(header header_raw)) {
+    subtest "checks via $method" => sub {
+      is_deeply(
+        [ $head->$method('foo') ],
+        [ 1, 2, 3 ],
+        "multi-value header",
+      );
 
-  is_deeply(
-    scalar $head->header('foo'),
-    1,
-    "single-value header",
-  );
+      is_deeply(
+        scalar $head->$method('foo'),
+        1,
+        "single-value header",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', 0),
-    1,
-    "first value",
-  );
+      is_deeply(
+        scalar $head->$method('foo', 0),
+        1,
+        "first value",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', 1),
-    2,
-    "second value",
-  );
+      is_deeply(
+        scalar $head->$method('foo', 1),
+        2,
+        "second value",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', 2),
-    3,
-    "third value",
-  );
+      is_deeply(
+        scalar $head->$method('foo', 2),
+        3,
+        "third value",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', 3),
-    undef,
-    "non existent fourth value",
-  );
+      is_deeply(
+        scalar $head->$method('foo', 3),
+        undef,
+        "non existent fourth value",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', -1),
-    3,
-    "last value",
-  );
+      is_deeply(
+        scalar $head->$method('foo', -1),
+        3,
+        "last value",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', -3),
-    1,
-    "third value from end",
-  );
+      is_deeply(
+        scalar $head->$method('foo', -3),
+        1,
+        "third value from end",
+      );
 
-  is_deeply(
-    scalar $head->header('foo', -4),
-    undef,
-    "non existent fourth value from end",
-  );
+      is_deeply(
+        scalar $head->$method('foo', -4),
+        undef,
+        "non existent fourth value from end",
+      );
+    }
+  }
 }
