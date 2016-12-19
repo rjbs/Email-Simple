@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+
+2.212     2016-12-18 20:05:09-05:00 America/New_York (TRIAL RELEASE)
         - add an $index arg to ->header to get the nth header (thanks, Pali
           Rohár)
 
