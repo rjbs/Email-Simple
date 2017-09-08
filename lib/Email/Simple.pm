@@ -237,6 +237,13 @@ This is another name (and the preferred one) for C<header>.
 
 This is another name (and the preferred one) for C<header_set>.
 
+=method header_raw_prepend
+
+  $email->header_raw_prepend($field => $value);
+
+This method adds a new instance of the name field as the first field in the
+header.
+
 =method header_names
 
     my @header_names = $email->header_names;
@@ -267,6 +274,7 @@ BEGIN {
   for my $method (qw(
     header_raw header
     header_raw_set header_set
+    header_raw_prepend
     header_raw_pairs header_pairs
     header_names
   )) {

@@ -283,6 +283,29 @@ sub header_set {
   $self->header_raw_set($field, @data);
 }
 
+=method header_raw_prepend
+
+  $header->header_raw_prepend($field => $value);
+
+This method adds a new instance of the name field as the first field in the
+header.
+
+=cut
+
+sub header_raw_prepend {
+  my ($self, $field, $value) = @_;
+
+  Carp::confess("tried to prepend raw header with undefined field name")
+    unless defined $field;
+
+  Carp::confess(qq{tried to prepend raw header "$field" with undefined value})
+    unless defined $value;
+
+  unshift @{ $self->{headers} }, $field => $value;
+
+  return;
+}
+
 =method crlf
 
 This method returns the newline string used in the header.
