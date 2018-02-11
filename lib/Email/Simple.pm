@@ -78,6 +78,8 @@ sub new {
 
   my $text_ref = (ref $text || '' eq 'SCALAR') ? $text : \$text;
 
+  Carp::carp 'Message with wide characters' if ${$text_ref} =~ /[^\x00-\xFF]/;
+
   my ($pos, $mycrlf) = $class->_split_head_from_body($text_ref);
 
   my $self = bless { mycrlf => $mycrlf } => $class;
@@ -295,6 +297,7 @@ Sets the body text of the mail.
 sub body_set {
   my ($self, $text) = @_;
   my $text_ref = ref $text ? $text : \$text;
+  Carp::carp 'Body with wide characters' if defined ${$text_ref} and ${$text_ref} =~ /[^\x00-\xFF]/;
   $self->{body} = $text_ref;
   return;
 }
