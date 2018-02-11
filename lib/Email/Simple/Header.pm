@@ -5,6 +5,8 @@ package Email::Simple::Header;
 
 use Carp ();
 
+our @CARP_NOT = qw(Email::Simple);
+
 require Email::Simple;
 
 =head1 SYNOPSIS
@@ -58,6 +60,8 @@ sub new {
 
 sub _header_to_list {
   my ($self, $head, $mycrlf) = @_;
+
+  Carp::carp 'Header with wide characters' if ${$head} =~ /[^\x00-\xFF]/;
 
   my @headers;
 
@@ -244,6 +248,9 @@ you.)
 
 sub header_raw_set {
   my ($self, $field, @data) = @_;
+
+  Carp::carp "Header name '$field' with wide characters" if $field =~ /[^\x00-\xFF]/;
+  Carp::carp "Value for '$field' header with wide characters" if grep /[^\x00-\xFF]/, @data;
 
   # I hate this block. -- rjbs, 2006-10-06
   if ($Email::Simple::GROUCHY) {
