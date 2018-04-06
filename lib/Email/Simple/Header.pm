@@ -335,6 +335,9 @@ sub _fold {
 
   $arg->{at} = $self->_default_fold_at unless exists $arg->{at};
 
+  return $line if $line =~ /\r?\n$/;
+  return $line . $self->crlf if $line =~ /\r?\n/;;
+
   return $line . $self->crlf unless $arg->{at} and $arg->{at} > 0;
 
   my $limit  = ($arg->{at} || $self->_default_fold_at) - 1;
@@ -346,6 +349,7 @@ sub _fold {
   my $indent = $arg->{indent} || $self->_default_fold_indent;
 
   return $self->__fold_objless($line, $limit, $indent, $self->crlf);
+
 }
 
 sub __fold_objless {
