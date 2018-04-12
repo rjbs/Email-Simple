@@ -335,18 +335,27 @@ sub _fold {
 
   $arg->{at} = $self->_default_fold_at unless exists $arg->{at};
 
-  return $line if $line =~ /\r?\n$/;
-  return $line . $self->crlf if $line =~ /\r?\n/;;
+  $arg->{indent} = $self->_default_fold_indent unless exists $arg->{indent};
+
+  my $indent = $arg->{indent} || $self->_default_fold_indent;
+
+  # We will not folder headers if...
+  # * the header has vertical whitespace
+  # * all vertical whitespace is followed by horizontal whitespace or END
+  if ($line =~ /\n/) {
+    if ($line =~ s/\n([^\s\t])/\n$indent$1/g) {
+      Carp::carp("bad space in header: newline followed by non-space: $line");
+    } else {
+      $line .= $self->crlf unless $line =~ /\n$/;
+      return $line;
+    }
+  }
 
   return $line . $self->crlf unless $arg->{at} and $arg->{at} > 0;
 
   my $limit  = ($arg->{at} || $self->_default_fold_at) - 1;
 
   return $line . $self->crlf if length $line <= $limit;
-
-  $arg->{indent} = $self->_default_fold_indent unless exists $arg->{indent};
-
-  my $indent = $arg->{indent} || $self->_default_fold_indent;
 
   return $self->__fold_objless($line, $limit, $indent, $self->crlf);
 

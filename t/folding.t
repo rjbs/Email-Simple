@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 # This time, with folding!
 
@@ -80,5 +80,17 @@ END
   unlike($email_1->as_string(), qr/at the end\n\s+\n/, 'no double fold on line ending in newline' );
 
 
+  {
+    my @warnings;
+    my $string = do {
+      local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+      $email_1->header_raw_prepend( 'Test6', "Invalid\nFolding" );
+      $email_1->as_string;
+    };
+
+    is(@warnings, 1, "setting an invalidly-folded header emits a warning");
+    like($warnings[0], qr/bad space/, "...and it's the right one");
+    like($string, qr/Test6: Invalid\r?\n Folding\r?\n/, "header fixed");
+  }
 }
 
