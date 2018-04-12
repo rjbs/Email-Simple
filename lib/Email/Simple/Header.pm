@@ -315,18 +315,18 @@ This method returns the newline string used in the header.
 sub crlf { $_[0]->{mycrlf} }
 
 # =method fold
-# 
+#
 #   my $folded = $header->fold($line, \%arg);
-# 
+#
 # Given a header string, this method returns a folded version, if the string is
 # long enough to warrant folding.  This method is used internally.
-# 
+#
 # Valid arguments are:
-# 
+#
 #   at      - fold lines to be no longer than this length, if possible
 #             if given and false, never fold headers
 #   indent  - indent lines with this string
-# 
+
 # =cut
 
 sub _fold {
@@ -372,19 +372,19 @@ sub __fold_objless {
 }
 
 # =method default_fold_at
-# 
+#
 # This method (provided for subclassing) returns the default length at which to
 # try to fold header lines.  The default default is 78.
-# 
+#
 # =cut
 
 sub _default_fold_at { 78 }
 
 # =method default_fold_indent
-# 
+#
 # This method (provided for subclassing) returns the default string used to
 # indent folded headers.  The default default is a single space.
-# 
+#
 # =cut
 
 sub _default_fold_indent { " " }
