@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 # This time, with folding!
 
