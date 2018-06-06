@@ -39,9 +39,9 @@ sub __crlf_re { qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; }
       ],
       body => '...',
   );
-  
+
   $email->header_set( 'X-Content-Container' => 'bottle/glass' );
-  
+
   print $email->as_string;
 
 =head1 DESCRIPTION
