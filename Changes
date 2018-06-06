@@ -2,6 +2,9 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.216     2018-06-06 11:47:52-04:00 America/New_York
+        - no changes since v2.215
+
 2.215     2018-05-04 16:21:28+10:00 Australia/Melbourne (TRIAL RELEASE)
         - do not re-fold folded lines (Marc Bradshaw)
 
