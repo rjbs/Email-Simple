@@ -306,6 +306,63 @@ sub header_raw_prepend {
   return;
 }
 
+=method header_rename
+
+  $header->header_rename($field, $new_name, $nth);
+
+This renames the named field to the new name.  If C<$nth> is given, only the
+I<n>th instance of the field will be renamed.  It is fatal to rename an
+instance that does not exist.  The first instance of a header is the 0th.
+
+If C<$nth> is omitted, all instances of the header are renamed.
+
+When picking headers to rename, C<$field> is matched case insensitively.  So,
+given this header:
+
+    happythoughts: yes
+    HappyThoughts: so many
+    hapPyThouGhts: forever
+
+Then this code...
+
+    $header->rename_header('happythoughts', 'Delights');
+
+...will result in this:
+
+    Delights: yes
+    Delights: so many
+    Delights: forever
+
+Headers may be rewrapped as a result of renaming.
+
+=cut
+
+sub header_rename {
+  my ($self, $field, $new_name, $n) = @_;
+
+  my $headers = $self->{headers};
+  my $lc_field = lc $field;
+
+  my @indices = grep { lc $headers->[$_] eq $lc_field }
+    map { $_ * 2 } 0 .. @$headers / 2 - 1;
+
+  if (defined $n) {
+    if ($n < 0) { Carp::confess("negative header index makes no sense") }
+    if ($n > $#indices) { Carp::confess("$n exceeds count of $field headers") }
+
+    @indices = $indices[$n];
+  }
+
+  for my $i (@indices) {
+    $headers->[$i] = $new_name;
+    if (ref $headers->[$i + 1]) {
+      $headers->[$i + 1] = $headers->[ $i + 1 ][0];
+    }
+  }
+
+  return;
+}
+
 =method crlf
 
 This method returns the newline string used in the header.
