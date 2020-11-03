@@ -2,6 +2,11 @@ Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
 
+2.217     2020-11-02 19:13:16-05:00 America/New_York (TRIAL RELEASE)
+        - add ->header_rename to header object
+        - issue a warning on non-ASCII codepoints added to message (thanks,
+          Pali Rohár)
+
 2.216     2018-06-06 11:47:52-04:00 America/New_York
         - no changes since v2.215
 
