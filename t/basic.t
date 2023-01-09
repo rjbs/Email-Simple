@@ -15,8 +15,8 @@ for my $mail_text ($file_contents, \$file_contents) {
   isa_ok($mail, "Email::Simple");
 
   my $old_from;
-  is($old_from = $mail->header("From"), 
-     'Andrew Josey <ajosey@rdg.opengroup.org>',  
+  is($old_from = $mail->header("From"),
+     'Andrew Josey <ajosey@rdg.opengroup.org>',
       "We can get a header");
   my $sc = 'Simon Cozens <simon@cpan.org>';
   is($mail->header_set("From", $sc), $sc, "Setting returns new value");
