@@ -1,3 +1,6 @@
+use v5.12.0;
+use warnings;
+
 use Test::More tests => 7;
 use Email::Simple;
 
