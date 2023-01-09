@@ -1,6 +1,8 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+
+2.218     2023-01-08 19:49:09-05:00 America/New_York
         - update author contact info
         - bump version required to v5.12.0 (it was already effectively that
           after some upstream changes)
