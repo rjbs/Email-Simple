@@ -1,5 +1,4 @@
-use 5.008;
-use strict;
+use v5.12.0;
 use warnings;
 package Email::Simple;
 # ABSTRACT: simple parsing of RFC2822 message format and headers
