@@ -1,6 +1,9 @@
 Revision history for Perl extension Email::Simple
 
 {{$NEXT}}
+        - update author contact info
+        - bump version required to v5.12.0 (it was already effectively that
+          after some upstream changes)
 
 2.217     2020-11-02 19:13:16-05:00 America/New_York (TRIAL RELEASE)
         - add ->header_rename to header object
